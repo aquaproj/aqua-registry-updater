@@ -13,11 +13,7 @@ import (
 	"github.com/suzuki-shunsuke/logrus-error/logerr"
 )
 
-var (
-	version = ""
-	commit  = "" //nolint:gochecknoglobals
-	date    = "" //nolint:gochecknoglobals
-)
+var version = ""
 
 func main() {
 	logE := log.New(version)
@@ -28,7 +24,7 @@ func main() {
 
 func core(ctx context.Context, logE *logrus.Entry) error {
 	token := os.Getenv("GITHUB_TOKEN")
-	ctrl := controller.New(afero.NewOsFs(), controller.NewGitHub(ctx, token))
+	ctrl := controller.New(afero.NewOsFs(), controller.NewGitHub(ctx, token).Repositories)
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	return ctrl.Update(ctx, logE, &controller.Param{

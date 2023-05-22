@@ -46,7 +46,6 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 		return err
 	}
 
-	// Read data.json
 	data := &Data{}
 	if err := ctrl.readData("dist/data.json", data); err != nil {
 		return err
@@ -57,30 +56,17 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 		pkgM[pkg.Name] = struct{}{}
 	}
 
-	data.Packages = append(data.Packages, &Package{
-		Name:            "cli/cli",
-		LastCheckedTime: "2023-05-22T05:52:00Z",
-	})
-	if err := ctrl.writeData("dist/data.json", data); err != nil {
-		return err
-	}
-
-	// list pkg.yaml
-	pkgPaths := []string{}
-	if err := fs.WalkDir(afero.NewIOFS(ctrl.fs), "pkgs", func(p string, dirEntry fs.DirEntry, e error) error {
-		if dirEntry.Name() != "pkg.yaml" {
-			return nil
-		}
-		pkgPaths = append(pkgPaths, p)
-		return nil
-	}); err != nil {
+	pkgPaths, err := ctrl.listPkgYAML()
+	if err != nil {
 		return fmt.Errorf("search pkg.yaml: %w", err)
 	}
+
 	for _, pkgPath := range pkgPaths {
 		pkgName := strings.TrimSuffix(strings.TrimPrefix(pkgPath, "pkgs/"), "/pkg.yaml")
 		if _, ok := pkgM[pkgName]; ok {
 			continue
 		}
+		// Append new packages in the end of the package list
 		data.Packages = append(data.Packages, &Package{
 			Name: pkgName,
 		})
@@ -89,7 +75,7 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 	cnt := 0
 	var idx int
 	for i, pkg := range data.Packages {
-		if cnt == 10 {
+		if cnt == 10 { // Limitation to avoid GitHub API rate limiting
 			idx = i
 			break
 		}
@@ -106,20 +92,32 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 	// update data and upload it to GHCR
 	data.Packages = append(data.Packages[idx:], data.Packages[:idx]...)
 
+	if err := ctrl.writeData("dist/data.json", data); err != nil {
+		return fmt.Errorf("update data.json: %w", err)
+	}
+
 	if err := pushFiles(ctx, repo, tag); err != nil {
 		return err
 	}
 
-	// extract package and version
-	// extract target packages
-	// get the latest version
-	// update the version
-	// create pull requests
 	return nil
 }
 
+func (ctrl *Controller) listPkgYAML() ([]string, error) {
+	pkgPaths := []string{}
+	if err := fs.WalkDir(afero.NewIOFS(ctrl.fs), "pkgs", func(p string, dirEntry fs.DirEntry, e error) error {
+		if dirEntry.Name() != "pkg.yaml" {
+			return nil
+		}
+		pkgPaths = append(pkgPaths, p)
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("search pkg.yaml: %w", err)
+	}
+	return pkgPaths, nil
+}
+
 func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package, repo string) (bool, error) {
-	logE = logE.WithField("pkg_name", pkg.Name)
 	pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
 	body, err := afero.ReadFile(ctrl.fs, pkgPath)
 	if err != nil {
