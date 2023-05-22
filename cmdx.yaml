@@ -1,0 +1,42 @@
+---
+# the configuration file of cmdx - task runner
+# https://github.com/suzuki-shunsuke/cmdx
+tasks:
+- name: test
+  short: t
+  description: test
+  usage: test
+  script: go test ./... -race -covermode=atomic
+- name: vet
+  short: v
+  description: go vet
+  usage: go vet
+  script: go vet ./...
+- name: lint
+  short: l
+  description: lint the go code
+  usage: lint the go code
+  script: golangci-lint run
+- name: release
+  short: r
+  description: release the new version
+  usage: release the new version
+  script: |
+    set -eux
+    git tag -m "chore: release {{.version}}" "{{.version}}"
+    git push origin "{{.version}}"
+  args:
+  - name: version
+    required: true
+    validate:
+    - regexp: "^v\\d+\\.\\d+.\\d+(-.+)?$"
+- name: install
+  short: i
+  description: Build and install aqua-registry-updater
+  usage: Build and install aqua-registry-updater by "go install" command
+  script: go install ./cmd/aqua-registry-updater
+- name: run
+  description: go run
+  usage: go run
+  script: |
+    go run ./cmd/aqua-registry-updater {{._builtin.args_string}}
