@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -93,80 +94,12 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 			break
 		}
 		logE := logE.WithField("pkg_name", pkg.Name)
-		pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
-		pattern, err := regexp.Compile(fmt.Sprintf(`- name: %s@(.*)`, pkg.Name))
+		incremented, err := ctrl.handlePackage(ctx, logE, pkg, param.Repo)
 		if err != nil {
-			return fmt.Errorf("compile a regular expression: %w", err)
+			logE.WithError(err).Error("handle a package")
 		}
-		body, err := afero.ReadFile(ctrl.fs, pkgPath)
-		if err != nil {
-			return fmt.Errorf("read pkg.yaml: %w", err)
-		}
-		bodyS := string(body)
-		arr := pattern.FindStringSubmatch(bodyS)
-		if len(arr) == 0 {
-			continue
-		}
-		currentVersion := arr[1]
-		logE = logE.WithField("current_version", currentVersion)
-		repoOwner, a, found := strings.Cut(pkg.Name, "/")
-		if !found {
-			continue
-		}
-		if repoOwner == "golang.org" {
-			// TODO
-			continue
-		}
-		if repoOwner == "crates.io" {
-			// TODO
-			continue
-		}
-		if strings.Contains(repoOwner, ".") {
-			// TODO
-			continue
-		}
-		repoName, _, _ := strings.Cut(a, "/")
-
-		cnt++
-
-		// TODO github_tag
-		release, _, err := ctrl.repo.GetLatestRelease(ctx, repoOwner, repoName)
-		if err != nil {
-			logE.WithError(err).Error("get a latest release")
-			continue
-		}
-		tagName := release.GetTagName()
-		if tagName == currentVersion {
-			logE.Info("already up-to-date")
-			continue
-		}
-		bodyS = strings.Replace(bodyS, "@"+currentVersion, "@"+tagName, 1)
-		f, err := ctrl.fs.Create(pkgPath)
-		if err != nil {
-			logE.WithError(err).Error("open pkg.yaml to update")
-			continue
-		}
-		defer f.Close()
-		if _, err := f.WriteString(bodyS); err != nil {
-			logE.WithError(err).Error("write pkg.yaml")
-			continue
-		}
-
-		prTitle := fmt.Sprintf("chore: update %s %s to %s", pkg.Name, currentVersion, tagName)
-
-		branch := fmt.Sprintf("aqua-registry-updater-%s-%s", pkg.Name, tagName)
-		if err := ctrl.exec(ctx, "ghcp", "commit", "-r", param.Repo, "-b", branch, "-m", prTitle, pkgPath); err != nil {
-			logE.WithError(err).Error("push a commit")
-			continue
-		}
-		if err := ctrl.createPR(ctx, repoOwner, repoName, &ParamCreatePR{
-			Release:        release,
-			CurrentVersion: currentVersion,
-			Title:          prTitle,
-			Branch:         branch,
-		}); err != nil {
-			logE.WithError(err).Error("create a pull request")
-			continue
+		if incremented {
+			cnt++
 		}
 	}
 
@@ -183,6 +116,116 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 	// update the version
 	// create pull requests
 	return nil
+}
+
+func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package, repo string) (bool, error) {
+	logE = logE.WithField("pkg_name", pkg.Name)
+	pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
+	body, err := afero.ReadFile(ctrl.fs, pkgPath)
+	if err != nil {
+		return false, fmt.Errorf("read pkg.yaml: %w", err)
+	}
+	bodyS := string(body)
+
+	currentVersion, err := ctrl.getCurrentVersion(pkg.Name, bodyS)
+	if err != nil {
+		return false, fmt.Errorf("get the current version: %w", err)
+	}
+	logE = logE.WithField("current_version", currentVersion)
+
+	repoOwner, a, found := strings.Cut(pkg.Name, "/")
+	if !found {
+		return false, errors.New("pkg name doesn't have /")
+	}
+	if repoOwner == "golang.org" {
+		// TODO
+		return false, nil
+	}
+	if repoOwner == "crates.io" {
+		// TODO
+		return false, nil
+	}
+	if strings.Contains(repoOwner, ".") {
+		// TODO
+		return false, nil
+	}
+	repoName, _, _ := strings.Cut(a, "/")
+
+	// TODO github_tag
+	release, _, err := ctrl.repo.GetLatestRelease(ctx, repoOwner, repoName)
+	if err != nil {
+		return true, fmt.Errorf("get a latest release: %w", err)
+	}
+	tagName := release.GetTagName()
+	if tagName == currentVersion {
+		logE.Info("already up-to-date")
+		return true, nil
+	}
+	if err := ctrl.updatePkgYAML(pkgPath, &ParamUpdatePkgYAML{
+		OriginalContent: bodyS,
+		CurrentVersion:  currentVersion,
+		NewVersion:      tagName,
+	}); err != nil {
+		return true, fmt.Errorf("update pkg.yaml: %w", err)
+	}
+
+	prTitle := fmt.Sprintf("chore: update %s %s to %s", pkg.Name, currentVersion, tagName)
+	branch := fmt.Sprintf("aqua-registry-updater-%s-%s", pkg.Name, tagName)
+	if err := ctrl.pushCommit(ctx, repo, branch, &ParamPushCommit{
+		Message: prTitle,
+		File:    pkgPath,
+	}); err != nil {
+		return true, fmt.Errorf("push a commit: %w", err)
+	}
+	if err := ctrl.createPR(ctx, repoOwner, repoName, &ParamCreatePR{
+		Release:        release,
+		CurrentVersion: currentVersion,
+		Title:          prTitle,
+		Branch:         branch,
+	}); err != nil {
+		return true, fmt.Errorf("create a pull request: %w", err)
+	}
+	return true, nil
+}
+
+func (ctrl *Controller) getCurrentVersion(pkgName, content string) (string, error) {
+	pattern, err := regexp.Compile(fmt.Sprintf(`- name: %s@(.*)`, pkgName))
+	if err != nil {
+		return "", fmt.Errorf("compile a regular expression: %w", err)
+	}
+	arr := pattern.FindStringSubmatch(content)
+	if len(arr) == 0 {
+		return "", errors.New("no match")
+	}
+	return arr[1], nil
+}
+
+type ParamUpdatePkgYAML struct {
+	OriginalContent string
+	CurrentVersion  string
+	NewVersion      string
+}
+
+func (ctrl *Controller) updatePkgYAML(pkgPath string, param *ParamUpdatePkgYAML) error {
+	bodyS := strings.Replace(param.OriginalContent, "@"+param.CurrentVersion, "@"+param.NewVersion, 1)
+	f, err := ctrl.fs.Create(pkgPath)
+	if err != nil {
+		return fmt.Errorf("open pkg.yaml to update: %w", err)
+	}
+	defer f.Close()
+	if _, err := f.WriteString(bodyS); err != nil {
+		return fmt.Errorf("write pkg.yaml: %w", err)
+	}
+	return nil
+}
+
+type ParamPushCommit struct {
+	Message string
+	File    string
+}
+
+func (ctrl *Controller) pushCommit(ctx context.Context, repo, branch string, param *ParamPushCommit) error {
+	return ctrl.exec(ctx, "ghcp", "commit", "-r", repo, "-b", branch, "-m", param.Message, param.File)
 }
 
 type ParamCreatePR struct {
