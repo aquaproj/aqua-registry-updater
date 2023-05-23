@@ -124,7 +124,6 @@ func pushFiles(ctx context.Context, repo *remote.Repository, tag string) error {
 			return fmt.Errorf("add a file to the file store: %w", err)
 		}
 		fileDescriptors = append(fileDescriptors, fileDescriptor)
-		fmt.Printf("file descriptor for %s: %v\n", name, fileDescriptor)
 	}
 
 	// 2. Pack the files and tag the packed manifest
@@ -135,7 +134,6 @@ func pushFiles(ctx context.Context, repo *remote.Repository, tag string) error {
 	if err != nil {
 		return fmt.Errorf("pack files: %w", err)
 	}
-	fmt.Println("manifest descriptor:", manifestDescriptor)
 
 	if err := fs.Tag(ctx, manifestDescriptor, tag); err != nil {
 		return fmt.Errorf("tag the packed manifest: %w", err)
