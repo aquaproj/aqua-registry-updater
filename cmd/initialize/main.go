@@ -27,7 +27,7 @@ func core(ctx context.Context, logE *logrus.Entry) error {
 	ctrl := initcmd.New(afero.NewOsFs())
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	return ctrl.Init(ctx, logE, &initcmd.Param{
+	return ctrl.Init(ctx, logE, &initcmd.Param{ //nolint:wrapcheck
 		GitHubToken: token,
-	}) //nolint:wrapcheck
+	})
 }

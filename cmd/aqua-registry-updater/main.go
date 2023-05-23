@@ -27,8 +27,7 @@ func core(ctx context.Context, logE *logrus.Entry) error {
 	ctrl := controller.New(afero.NewOsFs(), controller.NewGitHub(ctx, token).Repositories)
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	return ctrl.Update(ctx, logE, &controller.Param{
+	return ctrl.Update(ctx, logE, &controller.Param{ //nolint:wrapcheck
 		GitHubToken: token,
-		Repo:        os.Getenv("GITHUB_REPOSITORY"),
-	}) //nolint:wrapcheck
+	})
 }
