@@ -33,7 +33,7 @@ func core(ctx context.Context, logE *logrus.Entry) error {
 	ctrl := controller.New(afero.NewOsFs(), &controller.ParamNew{
 		RepoOwner: repoOwner,
 		RepoName:  repoName,
-	}, controller.NewGitHub(ctx, token).Repositories)
+	}, controller.NewGitHub(ctx, token).PullRequests)
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	return ctrl.Update(ctx, logE, &controller.Param{ //nolint:wrapcheck

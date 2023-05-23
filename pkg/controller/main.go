@@ -20,6 +20,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/go-timeout/timeout"
+	"github.com/suzuki-shunsuke/logrus-error/logerr"
 	"golang.org/x/oauth2"
 	"gopkg.in/yaml.v3"
 	"oras.land/oras-go/v2"
@@ -80,33 +81,33 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 		})
 	}
 
-	cnt := 0
 	var idx int
+	defer func() {
+		data.Packages = append(data.Packages[idx:], data.Packages[:idx]...)
+		if err := ctrl.writeData("data.json", data); err != nil {
+			logerr.WithError(logE, err).Error("update data.json")
+			return
+		}
+		logE.Info("pushing data.json to ghcr.io")
+		if err := pushFiles(ctx, repo, tag); err != nil {
+			logerr.WithError(logE, err).Error("push data.json to ghcr.io")
+		}
+	}()
+	cnt := 0
 	for i, pkg := range data.Packages {
+		idx = i
 		if cnt == cfg.Limit { // Limitation to avoid GitHub API rate limiting
-			idx = i
 			break
 		}
 		logE := logE.WithField("pkg_name", pkg.Name)
 		logE.Info("handling a package")
 		incremented, err := ctrl.handlePackage(ctx, logE, pkg)
 		if err != nil {
-			logE.WithError(err).Error("handle a package")
+			logerr.WithError(logE, err).Error("handle a package")
 		}
 		if incremented {
 			cnt++
 		}
-	}
-
-	data.Packages = append(data.Packages[idx:], data.Packages[:idx]...)
-
-	if err := ctrl.writeData("data.json", data); err != nil {
-		return fmt.Errorf("update data.json: %w", err)
-	}
-
-	logE.Info("updating data.json to ghcr.io")
-	if err := pushFiles(ctx, repo, tag); err != nil {
-		return err
 	}
 
 	return nil
@@ -142,7 +143,7 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 		return false, fmt.Errorf("get the current version: %w", err)
 	}
 
-	repoOwner, _, found := strings.Cut(pkg.Name, "/")
+	repoOwner, a, found := strings.Cut(pkg.Name, "/")
 	if !found {
 		return false, errors.New("pkg name doesn't have /")
 	}
@@ -154,6 +155,7 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 		// TODO
 		return false, nil
 	}
+	repoName, _, _ := strings.Cut(a, "/")
 
 	newVersion, err := ctrl.updatePkgYAML(ctx, pkg.Name, pkgPath, bodyS)
 	if err != nil {
@@ -177,7 +179,7 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 	if err := ctrl.exec(ctx, "git", "push", "origin", branch); err != nil {
 		return true, fmt.Errorf(`git push origin %s: %w`, branch, err)
 	}
-	prNumber, err := ctrl.createPR(ctx, ctrl.param.RepoOwner, ctrl.param.RepoName, &ParamCreatePR{
+	prNumber, err := ctrl.createPR(ctx, repoOwner, repoName, &ParamCreatePR{
 		NewVersion:     newVersion,
 		CurrentVersion: currentVersion,
 		Title:          prTitle,
@@ -189,13 +191,13 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 
 	automerged, err := compareVersion(currentVersion, newVersion)
 	if err != nil {
-		logE.WithError(err).Warn("compare version")
+		logerr.WithError(logE, err).Warn("compare version")
 	}
 	if automerged {
 		if _, _, err := ctrl.pull.Merge(ctx, ctrl.param.RepoOwner, ctrl.param.RepoName, prNumber, "", &github.PullRequestOptions{
 			MergeMethod: "squash",
 		}); err != nil {
-			logE.WithError(err).Warn("enable auto-merge")
+			logerr.WithError(logE, err).Warn("enable auto-merge")
 		}
 	}
 	return true, nil
@@ -289,8 +291,9 @@ func (ctrl *Controller) createPR(ctx context.Context, repoOwner, repoName string
 		repoOwner, repoName,
 		param.CurrentVersion, newVersion,
 	)
-	pr, _, err := ctrl.pull.Create(ctx, repoOwner, repoName, &github.NewPullRequest{
+	pr, _, err := ctrl.pull.Create(ctx, ctrl.param.RepoOwner, ctrl.param.RepoName, &github.NewPullRequest{
 		Head:  github.String(param.Branch),
+		Base:  github.String("main"),
 		Title: github.String(param.Title),
 		Body:  github.String(prBody),
 	})
@@ -308,9 +311,9 @@ func (ctrl *Controller) exec(ctx context.Context, command string, args ...string
 	return runner.Run(ctx, cmd) //nolint:wrapcheck
 }
 
-type RepositoriesService interface {
-	GetLatestRelease(ctx context.Context, owner, repo string) (*github.RepositoryRelease, *github.Response, error)
-}
+// type RepositoriesService interface {
+// 	GetLatestRelease(ctx context.Context, owner, repo string) (*github.RepositoryRelease, *github.Response, error)
+// }
 
 func NewGitHub(ctx context.Context, token string) *github.Client {
 	return github.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(
@@ -354,10 +357,10 @@ type PullRequestsService interface {
 	Merge(ctx context.Context, owner string, repo string, number int, commitMessage string, options *github.PullRequestOptions) (*github.PullRequestMergeResult, *github.Response, error)
 }
 
-func New(fs afero.Fs, param *ParamNew, repo RepositoriesService) *Controller {
+func New(fs afero.Fs, param *ParamNew, pull PullRequestsService) *Controller {
 	return &Controller{
-		fs: fs,
-		// repo:   repo,
+		fs:     fs,
+		pull:   pull,
 		stdout: os.Stdout,
 		stderr: os.Stderr,
 		param:  param,
