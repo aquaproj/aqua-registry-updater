@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/google/go-github/v52 v52.0.0
+	github.com/hashicorp/go-version v1.6.0
 	github.com/opencontainers/image-spec v1.1.0-rc3
 	github.com/sirupsen/logrus v1.9.2
 	github.com/spf13/afero v1.9.3

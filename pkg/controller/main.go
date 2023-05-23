@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v52/github"
+	"github.com/hashicorp/go-version"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
@@ -45,25 +46,29 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 
 	const tag = "latest"
 
+	logE.Info("pulling data from ghcr.io")
 	if err := pullFiles(ctx, repo, tag); err != nil {
 		return err
 	}
 
 	data := &Data{}
-	if err := ctrl.readData("dist/data.json", data); err != nil {
+	if err := ctrl.readData("data.json", data); err != nil {
 		return err
 	}
 
+	logE.WithField("num_of_packages", len(data.Packages)).Info("read data.json")
 	pkgM := make(map[string]struct{}, len(data.Packages))
 	for _, pkg := range data.Packages {
 		pkgM[pkg.Name] = struct{}{}
 	}
 
+	logE.Info("searching pkg.yaml from pkgs")
 	pkgPaths, err := ctrl.listPkgYAML()
 	if err != nil {
 		return fmt.Errorf("search pkg.yaml: %w", err)
 	}
 
+	logE.WithField("num_of_pkgs", len(pkgPaths)).Info("search pkg.yaml from pkgs")
 	for _, pkgPath := range pkgPaths {
 		pkgName := strings.TrimSuffix(strings.TrimPrefix(pkgPath, "pkgs/"), "/pkg.yaml")
 		if _, ok := pkgM[pkgName]; ok {
@@ -83,7 +88,8 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 			break
 		}
 		logE := logE.WithField("pkg_name", pkg.Name)
-		incremented, err := ctrl.handlePackage(ctx, pkg)
+		logE.Info("handling a package")
+		incremented, err := ctrl.handlePackage(ctx, logE, pkg)
 		if err != nil {
 			logE.WithError(err).Error("handle a package")
 		}
@@ -92,13 +98,13 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 		}
 	}
 
-	// update data and upload it to GHCR
 	data.Packages = append(data.Packages[idx:], data.Packages[:idx]...)
 
-	if err := ctrl.writeData("dist/data.json", data); err != nil {
+	if err := ctrl.writeData("data.json", data); err != nil {
 		return fmt.Errorf("update data.json: %w", err)
 	}
 
+	logE.Info("updating data.json to ghcr.io")
 	if err := pushFiles(ctx, repo, tag); err != nil {
 		return err
 	}
@@ -120,7 +126,7 @@ func (ctrl *Controller) listPkgYAML() ([]string, error) {
 	return pkgPaths, nil
 }
 
-func (ctrl *Controller) handlePackage(ctx context.Context, pkg *Package) (bool, error) { //nolint:cyclop
+func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package) (bool, error) { //nolint:cyclop,funlen
 	pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
 	if err := ctrl.exec(ctx, "git", "checkout", "main"); err != nil {
 		return true, fmt.Errorf("git checkout main: %w", err)
@@ -136,7 +142,7 @@ func (ctrl *Controller) handlePackage(ctx context.Context, pkg *Package) (bool, 
 		return false, fmt.Errorf("get the current version: %w", err)
 	}
 
-	repoOwner, a, found := strings.Cut(pkg.Name, "/")
+	repoOwner, _, found := strings.Cut(pkg.Name, "/")
 	if !found {
 		return false, errors.New("pkg name doesn't have /")
 	}
@@ -148,7 +154,6 @@ func (ctrl *Controller) handlePackage(ctx context.Context, pkg *Package) (bool, 
 		// TODO
 		return false, nil
 	}
-	repoName, _, _ := strings.Cut(a, "/")
 
 	newVersion, err := ctrl.updatePkgYAML(ctx, pkg.Name, pkgPath, bodyS)
 	if err != nil {
@@ -172,15 +177,40 @@ func (ctrl *Controller) handlePackage(ctx context.Context, pkg *Package) (bool, 
 	if err := ctrl.exec(ctx, "git", "push", "origin", branch); err != nil {
 		return true, fmt.Errorf(`git push origin %s: %w`, branch, err)
 	}
-	if err := ctrl.createPR(ctx, repoOwner, repoName, &ParamCreatePR{
+	prNumber, err := ctrl.createPR(ctx, ctrl.param.RepoOwner, ctrl.param.RepoName, &ParamCreatePR{
 		NewVersion:     newVersion,
 		CurrentVersion: currentVersion,
 		Title:          prTitle,
 		Branch:         branch,
-	}); err != nil {
+	})
+	if err != nil {
 		return true, fmt.Errorf("create a pull request: %w", err)
 	}
+
+	automerged, err := compareVersion(currentVersion, newVersion)
+	if err != nil {
+		logE.WithError(err).Warn("compare version")
+	}
+	if automerged {
+		if _, _, err := ctrl.pull.Merge(ctx, ctrl.param.RepoOwner, ctrl.param.RepoName, prNumber, "", &github.PullRequestOptions{
+			MergeMethod: "squash",
+		}); err != nil {
+			logE.WithError(err).Warn("enable auto-merge")
+		}
+	}
 	return true, nil
+}
+
+func compareVersion(currentVersion, newVersion string) (bool, error) {
+	c, err := version.NewVersion(currentVersion)
+	if err != nil {
+		return false, fmt.Errorf("parse the current version: %w", err)
+	}
+	n, err := version.NewVersion(newVersion)
+	if err != nil {
+		return false, fmt.Errorf("parse the new version: %w", err)
+	}
+	return n.GreaterThan(c), nil
 }
 
 func (ctrl *Controller) getCurrentVersion(pkgName, content string) (string, error) {
@@ -226,7 +256,7 @@ func (ctrl *Controller) updatePkgYAML(ctx context.Context, pkgName, pkgPath, con
 		return "", fmt.Errorf("open pkg.yaml to update: %w", err)
 	}
 	defer f.Close()
-	if _, err := f.WriteString(strings.Join(lines, "\n") + "\n"); err != nil {
+	if _, err := f.WriteString(strings.Join(lines, "\n")); err != nil {
 		return "", fmt.Errorf("write pkg.yaml: %w", err)
 	}
 	return newVersion, nil
@@ -250,7 +280,7 @@ type ParamCreatePR struct {
 	Branch         string
 }
 
-func (ctrl *Controller) createPR(ctx context.Context, repoOwner, repoName string, param *ParamCreatePR) error {
+func (ctrl *Controller) createPR(ctx context.Context, repoOwner, repoName string, param *ParamCreatePR) (int, error) {
 	newVersion := param.NewVersion
 	prBody := fmt.Sprintf(
 		`[%s](%s) [compare](https://github.com/%s/%s/compare/%s...%s)`,
@@ -259,13 +289,18 @@ func (ctrl *Controller) createPR(ctx context.Context, repoOwner, repoName string
 		repoOwner, repoName,
 		param.CurrentVersion, newVersion,
 	)
-	if err := ctrl.exec(ctx, "gh", "pr", "create", "--head", param.Branch, "-t", param.Title, "-b", prBody); err != nil {
-		return err
+	pr, _, err := ctrl.pull.Create(ctx, repoOwner, repoName, &github.NewPullRequest{
+		Head:  github.String(param.Branch),
+		Title: github.String(param.Title),
+		Body:  github.String(prBody),
+	})
+	if err != nil {
+		return 0, fmt.Errorf("create a pull request: %w", err)
 	}
-	return nil
+	return pr.GetNumber(), nil
 }
 
-func (ctrl *Controller) exec(ctx context.Context, command string, args ...string) error {
+func (ctrl *Controller) exec(ctx context.Context, command string, args ...string) error { //nolint:unparam
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = ctrl.stdout
 	cmd.Stderr = ctrl.stderr
@@ -300,19 +335,32 @@ func (ctrl *Controller) newRepo(reg, token string) (*remote.Repository, error) {
 	return repo, nil
 }
 
-type Controller struct {
-	fs     afero.Fs
-	repo   RepositoriesService
-	stdout io.Writer
-	stderr io.Writer
+type ParamNew struct {
+	RepoOwner string
+	RepoName  string
 }
 
-func New(fs afero.Fs, repo RepositoriesService) *Controller {
+type Controller struct {
+	fs afero.Fs
+	// repo   RepositoriesService
+	pull   PullRequestsService
+	stdout io.Writer
+	stderr io.Writer
+	param  *ParamNew
+}
+
+type PullRequestsService interface {
+	Create(ctx context.Context, owner, repo string, pull *github.NewPullRequest) (*github.PullRequest, *github.Response, error)
+	Merge(ctx context.Context, owner string, repo string, number int, commitMessage string, options *github.PullRequestOptions) (*github.PullRequestMergeResult, *github.Response, error)
+}
+
+func New(fs afero.Fs, param *ParamNew, repo RepositoriesService) *Controller {
 	return &Controller{
-		fs:     fs,
-		repo:   repo,
+		fs: fs,
+		// repo:   repo,
 		stdout: os.Stdout,
 		stderr: os.Stderr,
+		param:  param,
 	}
 }
 
@@ -329,8 +377,7 @@ type Data struct {
 }
 
 type Package struct {
-	Name            string `json:"name"`
-	LastCheckedTime string `json:"last_checked_time"`
+	Name string `json:"name"`
 }
 
 func (ctrl *Controller) writeData(path string, data *Data) error {
@@ -370,7 +417,7 @@ func (ctrl *Controller) readConfig(path string, cfg *Config) error {
 }
 
 func pushFiles(ctx context.Context, repo *remote.Repository, tag string) error {
-	fs, err := file.New("dist")
+	fs, err := file.New("")
 	if err != nil {
 		return fmt.Errorf("create a file store: %w", err)
 	}
@@ -407,7 +454,7 @@ func pushFiles(ctx context.Context, repo *remote.Repository, tag string) error {
 
 func pullFiles(ctx context.Context, repo *remote.Repository, tag string) error {
 	// 0. Create a file store
-	fs, err := file.New("dist")
+	fs, err := file.New("")
 	if err != nil {
 		return fmt.Errorf("create a file store: %w", err)
 	}
