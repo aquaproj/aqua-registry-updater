@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -27,22 +28,24 @@ import (
 	"oras.land/oras-go/v2/registry/remote/retry"
 )
 
-func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Param) error {
+func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Param) error { //nolint:funlen,cyclop
 	cfg := &Config{}
 	if err := ctrl.readConfig("config.yaml", cfg); err != nil {
 		return err
 	}
+	if cfg.Limit == 0 {
+		cfg.Limit = 50
+	}
 
 	// Get data from GHCR
-	const reg = "ghcr.io"
-	repo, err := ctrl.newRepo(reg, param.GitHubToken)
+	repo, err := ctrl.newRepo("ghcr.io", param.GitHubToken)
 	if err != nil {
 		return fmt.Errorf("create a client for a remote repository: %w", err)
 	}
 
 	const tag = "latest"
 
-	if err := pullFiles(ctx, repo, reg, tag); err != nil {
+	if err := pullFiles(ctx, repo, tag); err != nil {
 		return err
 	}
 
@@ -75,12 +78,12 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 	cnt := 0
 	var idx int
 	for i, pkg := range data.Packages {
-		if cnt == 10 { // Limitation to avoid GitHub API rate limiting
+		if cnt == cfg.Limit { // Limitation to avoid GitHub API rate limiting
 			idx = i
 			break
 		}
 		logE := logE.WithField("pkg_name", pkg.Name)
-		incremented, err := ctrl.handlePackage(ctx, logE, pkg, param.Repo)
+		incremented, err := ctrl.handlePackage(ctx, pkg)
 		if err != nil {
 			logE.WithError(err).Error("handle a package")
 		}
@@ -117,8 +120,11 @@ func (ctrl *Controller) listPkgYAML() ([]string, error) {
 	return pkgPaths, nil
 }
 
-func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package, repo string) (bool, error) {
+func (ctrl *Controller) handlePackage(ctx context.Context, pkg *Package) (bool, error) { //nolint:cyclop
 	pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
+	if err := ctrl.exec(ctx, "git", "checkout", "main"); err != nil {
+		return true, fmt.Errorf("git checkout main: %w", err)
+	}
 	body, err := afero.ReadFile(ctrl.fs, pkgPath)
 	if err != nil {
 		return false, fmt.Errorf("read pkg.yaml: %w", err)
@@ -129,7 +135,6 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 	if err != nil {
 		return false, fmt.Errorf("get the current version: %w", err)
 	}
-	logE = logE.WithField("current_version", currentVersion)
 
 	repoOwner, a, found := strings.Cut(pkg.Name, "/")
 	if !found {
@@ -139,44 +144,36 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 		// TODO
 		return false, nil
 	}
-	if repoOwner == "crates.io" {
-		// TODO
-		return false, nil
-	}
 	if strings.Contains(repoOwner, ".") {
 		// TODO
 		return false, nil
 	}
 	repoName, _, _ := strings.Cut(a, "/")
 
-	// TODO github_tag
-	release, _, err := ctrl.repo.GetLatestRelease(ctx, repoOwner, repoName)
+	newVersion, err := ctrl.updatePkgYAML(ctx, pkg.Name, pkgPath, bodyS)
 	if err != nil {
-		return true, fmt.Errorf("get a latest release: %w", err)
-	}
-	tagName := release.GetTagName()
-	if tagName == currentVersion {
-		logE.Info("already up-to-date")
-		return true, nil
-	}
-	if err := ctrl.updatePkgYAML(pkgPath, &ParamUpdatePkgYAML{
-		OriginalContent: bodyS,
-		CurrentVersion:  currentVersion,
-		NewVersion:      tagName,
-	}); err != nil {
 		return true, fmt.Errorf("update pkg.yaml: %w", err)
 	}
+	if newVersion == "" {
+		return true, nil
+	}
 
-	prTitle := fmt.Sprintf("chore: update %s %s to %s", pkg.Name, currentVersion, tagName)
-	branch := fmt.Sprintf("aqua-registry-updater-%s-%s", pkg.Name, tagName)
-	if err := ctrl.pushCommit(ctx, repo, branch, &ParamPushCommit{
-		Message: prTitle,
-		File:    pkgPath,
-	}); err != nil {
-		return true, fmt.Errorf("push a commit: %w", err)
+	prTitle := fmt.Sprintf("chore: update %s %s to %s", pkg.Name, currentVersion, newVersion)
+	branch := fmt.Sprintf("aqua-registry-updater-%s-%s", pkg.Name, newVersion)
+	if err := ctrl.exec(ctx, "git", "checkout", "-b", branch); err != nil {
+		return true, fmt.Errorf("create a branch: %w", err)
+	}
+	if err := ctrl.exec(ctx, "git", "add", pkgPath); err != nil {
+		return true, fmt.Errorf("git add %s: %w", pkgPath, err)
+	}
+	if err := ctrl.exec(ctx, "git", "commit", "-m", prTitle); err != nil {
+		return true, fmt.Errorf(`git commit -m "%s": %w`, prTitle, err)
+	}
+	if err := ctrl.exec(ctx, "git", "push", "origin", branch); err != nil {
+		return true, fmt.Errorf(`git push origin %s: %w`, branch, err)
 	}
 	if err := ctrl.createPR(ctx, repoOwner, repoName, &ParamCreatePR{
-		Release:        release,
+		NewVersion:     newVersion,
 		CurrentVersion: currentVersion,
 		Title:          prTitle,
 		Branch:         branch,
@@ -200,48 +197,67 @@ func (ctrl *Controller) getCurrentVersion(pkgName, content string) (string, erro
 
 type ParamUpdatePkgYAML struct {
 	OriginalContent string
-	CurrentVersion  string
-	NewVersion      string
 }
 
-func (ctrl *Controller) updatePkgYAML(pkgPath string, param *ParamUpdatePkgYAML) error {
-	bodyS := strings.Replace(param.OriginalContent, "@"+param.CurrentVersion, "@"+param.NewVersion, 1)
+func (ctrl *Controller) updatePkgYAML(ctx context.Context, pkgName, pkgPath, content string) (string, error) {
+	newLine, err := ctrl.aquaGenerate(ctx, pkgName)
+	if err != nil {
+		return "", err
+	}
+	idx := strings.Index(newLine, "@")
+	if idx == -1 {
+		return "", nil
+	}
+	newVersion := newLine[idx+1:]
+	lines := strings.Split(content, "\n")
+	if len(lines) < 2 { //nolint:gomnd
+		return "", nil
+	}
+	if strings.TrimSpace(lines[1]) == strings.TrimSpace(newLine) {
+		return "", nil
+	}
+	if strings.HasPrefix(lines[1], " ") {
+		lines[1] = "  " + newLine
+	} else {
+		lines[1] = newLine
+	}
 	f, err := ctrl.fs.Create(pkgPath)
 	if err != nil {
-		return fmt.Errorf("open pkg.yaml to update: %w", err)
+		return "", fmt.Errorf("open pkg.yaml to update: %w", err)
 	}
 	defer f.Close()
-	if _, err := f.WriteString(bodyS); err != nil {
-		return fmt.Errorf("write pkg.yaml: %w", err)
+	if _, err := f.WriteString(strings.Join(lines, "\n") + "\n"); err != nil {
+		return "", fmt.Errorf("write pkg.yaml: %w", err)
 	}
-	return nil
+	return newVersion, nil
 }
 
-type ParamPushCommit struct {
-	Message string
-	File    string
-}
-
-func (ctrl *Controller) pushCommit(ctx context.Context, repo, branch string, param *ParamPushCommit) error {
-	return ctrl.exec(ctx, "ghcp", "commit", "-r", repo, "-b", branch, "-m", param.Message, param.File)
+func (ctrl *Controller) aquaGenerate(ctx context.Context, pkgName string) (string, error) {
+	cmd := exec.Command("aqua", "g", pkgName)
+	buf := &bytes.Buffer{}
+	cmd.Stdout = buf
+	cmd.Stderr = ctrl.stderr
+	if err := timeout.NewRunner(0).Run(ctx, cmd); err != nil {
+		return "", err //nolint:wrapcheck
+	}
+	return strings.TrimSpace(buf.String()), nil
 }
 
 type ParamCreatePR struct {
-	Release        *github.RepositoryRelease
+	NewVersion     string
 	CurrentVersion string
 	Title          string
 	Branch         string
 }
 
 func (ctrl *Controller) createPR(ctx context.Context, repoOwner, repoName string, param *ParamCreatePR) error {
-	release := param.Release
-	tagName := release.GetTagName()
+	newVersion := param.NewVersion
 	prBody := fmt.Sprintf(
 		`[%s](%s) [compare](https://github.com/%s/%s/compare/%s...%s)`,
-		tagName,
-		release.GetHTMLURL(),
+		newVersion,
+		fmt.Sprintf(`https://github.com/%s/%s/releases/tag/%s`, repoOwner, repoName, newVersion),
 		repoOwner, repoName,
-		param.CurrentVersion, tagName,
+		param.CurrentVersion, newVersion,
 	)
 	if err := ctrl.exec(ctx, "gh", "pr", "create", "--head", param.Branch, "-t", param.Title, "-b", prBody); err != nil {
 		return err
@@ -254,7 +270,7 @@ func (ctrl *Controller) exec(ctx context.Context, command string, args ...string
 	cmd.Stdout = ctrl.stdout
 	cmd.Stderr = ctrl.stderr
 	runner := timeout.NewRunner(0)
-	return runner.Run(ctx, cmd)
+	return runner.Run(ctx, cmd) //nolint:wrapcheck
 }
 
 type RepositoriesService interface {
@@ -302,10 +318,11 @@ func New(fs afero.Fs, repo RepositoriesService) *Controller {
 
 type Param struct {
 	GitHubToken string
-	Repo        string
 }
 
-type Config struct{}
+type Config struct {
+	Limit int
+}
 
 type Data struct {
 	Packages []*Package `json:"packages"`
@@ -367,7 +384,6 @@ func pushFiles(ctx context.Context, repo *remote.Repository, tag string) error {
 			return fmt.Errorf("add a file to the file store: %w", err)
 		}
 		fileDescriptors = append(fileDescriptors, fileDescriptor)
-		fmt.Printf("file descriptor for %s: %v\n", name, fileDescriptor)
 	}
 
 	// 2. Pack the files and tag the packed manifest
@@ -378,7 +394,6 @@ func pushFiles(ctx context.Context, repo *remote.Repository, tag string) error {
 	if err != nil {
 		return fmt.Errorf("pack files: %w", err)
 	}
-	fmt.Println("manifest descriptor:", manifestDescriptor)
 
 	if err := fs.Tag(ctx, manifestDescriptor, tag); err != nil {
 		return fmt.Errorf("tag the packed manifest: %w", err)
@@ -390,7 +405,7 @@ func pushFiles(ctx context.Context, repo *remote.Repository, tag string) error {
 	return nil
 }
 
-func pullFiles(ctx context.Context, repo *remote.Repository, reg, tag string) error {
+func pullFiles(ctx context.Context, repo *remote.Repository, tag string) error {
 	// 0. Create a file store
 	fs, err := file.New("dist")
 	if err != nil {
