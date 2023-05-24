@@ -12,4 +12,4 @@ jobs:
       prune: true
     secrets:
       gh_app_id: ${{secrets.APP_ID_AQUAPROJ_AQUA}}
-      gh_private_key: ${{secrets.APP_PRIVATE_KEY_AQUAPROJ_AQUA}}
+      gh_app_private_key: ${{secrets.APP_PRIVATE_KEY_AQUAPROJ_AQUA}}
