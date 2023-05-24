@@ -13,8 +13,8 @@ jobs:
       aqua_policy_allow: true
       aqua_version: v2.7.0
     secrets:
-      gh_app_id: ${{secrets.APP_ID}}
-      gh_app_private_key: ${{secrets.APP_PRIVATE_KEY}}
+      gh_app_id: ${{secrets.APP_ID_AQUAPROJ_AQUA}}
+      gh_app_private_key: ${{secrets.APP_PRIVATE_KEY_AQUAPROJ_AQUA}}
     permissions:
       contents: write
       id-token: write

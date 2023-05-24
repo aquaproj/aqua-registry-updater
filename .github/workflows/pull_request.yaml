@@ -51,9 +51,7 @@ jobs:
     # By default success() is used so we have to override success() by "! failure() && ! cancelled()"
     if: |
       ! failure() && ! cancelled() && github.event.pull_request.user.login == 'renovate[bot]' && contains(github.event.pull_request.body, ' **Automerge**: Enabled.')
-    secrets:
-      gh_app_id: ${{secrets.APP_ID}}
-      gh_app_private_key: ${{secrets.APP_PRIVATE_KEY}}
+    secrets: inherit
 
   status-check:
     uses: ./.github/workflows/wc-status-check.yaml
@@ -81,9 +79,7 @@ jobs:
     uses: ./.github/workflows/wc-update-aqua-checksums.yaml
     permissions:
       contents: read
-    secrets:
-      gh_app_id: ${{secrets.APP_ID}}
-      gh_app_private_key: ${{secrets.APP_PRIVATE_KEY}}
+    secrets: inherit
 
   ghalint:
     needs: path-filter
@@ -100,8 +96,6 @@ jobs:
     uses: ./.github/workflows/wc-go-mod-tidy.yaml
     needs: path-filter
     if: needs.path-filter.outputs.go-mod-tidy == 'true'
-    secrets:
-      gh_app_id: ${{secrets.APP_ID}}
-      gh_app_private_key: ${{secrets.APP_PRIVATE_KEY}}
+    secrets: inherit
     permissions:
       contents: read
