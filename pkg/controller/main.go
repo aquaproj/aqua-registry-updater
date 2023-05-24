@@ -32,7 +32,7 @@ import (
 
 func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Param) error { //nolint:funlen,cyclop
 	cfg := &Config{}
-	if err := ctrl.readConfig("config.yaml", cfg); err != nil {
+	if err := ctrl.readConfig("aqua-registry-updater.yaml", cfg); err != nil {
 		return err
 	}
 	if err := cfg.SetDefault(ctrl.param.RepoOwner + "/" + ctrl.param.RepoName); err != nil {

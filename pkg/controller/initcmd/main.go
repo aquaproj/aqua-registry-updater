@@ -18,7 +18,7 @@ import (
 
 func (ctrl *Controller) Init(ctx context.Context, logE *logrus.Entry, param *Param) error {
 	cfg := &Config{}
-	if err := ctrl.readConfig("config.yaml", cfg); err != nil {
+	if err := ctrl.readConfig("aqua-registry-updater.yaml", cfg); err != nil {
 		return err
 	}
 
