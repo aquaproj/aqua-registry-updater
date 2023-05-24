@@ -33,7 +33,7 @@ func (ctrl *Controller) Init(ctx context.Context, logE *logrus.Entry, param *Par
 
 	data := &Data{}
 
-	if err := ctrl.writeData("dist/data.json", data); err != nil {
+	if err := ctrl.writeData("data.json", data); err != nil {
 		return fmt.Errorf("update data.json: %w", err)
 	}
 
@@ -45,7 +45,7 @@ func (ctrl *Controller) Init(ctx context.Context, logE *logrus.Entry, param *Par
 }
 
 func (ctrl *Controller) newRepo(reg, token string) (*remote.Repository, error) {
-	repo, err := remote.NewRepository(reg + "/suzuki-shunsuke/aqua-registry-updater")
+	repo, err := remote.NewRepository(reg + "/aquaproj/aqua-registry")
 	if err != nil {
 		return nil, fmt.Errorf("create a client for a remote repository: %w", err)
 	}
@@ -53,9 +53,8 @@ func (ctrl *Controller) newRepo(reg, token string) (*remote.Repository, error) {
 		Client: retry.DefaultClient,
 		Cache:  auth.DefaultCache,
 		Credential: auth.StaticCredential(reg, auth.Credential{
-			Username: "suzuki-shunsuke",
+			Username: "apps/aquaproj-aqua",
 			Password: token,
-			// Password: os.Getenv("GITHUB_TOKEN"),
 		}),
 	}
 	return repo, nil

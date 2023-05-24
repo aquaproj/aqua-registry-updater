@@ -35,19 +35,19 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 	if err := ctrl.readConfig("config.yaml", cfg); err != nil {
 		return err
 	}
-	if cfg.Limit == 0 {
-		cfg.Limit = 50
+	if err := cfg.SetDefault(ctrl.param.RepoOwner + "/" + ctrl.param.RepoName); err != nil {
+		return fmt.Errorf("validate config: %w", err)
 	}
 
 	// Get data from GHCR
-	repo, err := ctrl.newRepo("ghcr.io", param.GitHubToken)
+	repo, err := ctrl.newRepo(cfg.ContainerRegistry, param.GitHubToken)
 	if err != nil {
 		return fmt.Errorf("create a client for a remote repository: %w", err)
 	}
 
 	const tag = "latest"
 
-	logE.Info("pulling data from ghcr.io")
+	logE.Info("pulling data from the container registry")
 	if err := pullFiles(ctx, repo, tag); err != nil {
 		return err
 	}
@@ -88,9 +88,9 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 			logerr.WithError(logE, err).Error("update data.json")
 			return
 		}
-		logE.Info("pushing data.json to ghcr.io")
+		logE.Info("pushing data.json to the container registry")
 		if err := pushFiles(ctx, repo, tag); err != nil {
-			logerr.WithError(logE, err).Error("push data.json to ghcr.io")
+			logerr.WithError(logE, err).Error("push data.json to the container registry")
 		}
 	}()
 	cnt := 0
@@ -110,6 +110,28 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 		}
 	}
 
+	return nil
+}
+
+func (cfg *Config) SetDefault(repo string) error {
+	if cfg.Limit == 0 {
+		cfg.Limit = 50
+	}
+	if cfg.ContainerRegistry == nil {
+		return errors.New("container_registry is required")
+	}
+	if cfg.ContainerRegistry.Auth == nil {
+		return errors.New("container_registry.auth is required")
+	}
+	if cfg.ContainerRegistry.Registry == "" {
+		cfg.ContainerRegistry.Registry = "ghcr.io"
+	}
+	if cfg.ContainerRegistry.Repository == "" {
+		cfg.ContainerRegistry.Repository = repo
+	}
+	if cfg.ContainerRegistry.Auth.Username == "" {
+		return errors.New("container_registry.auth.username is required")
+	}
 	return nil
 }
 
@@ -321,18 +343,17 @@ func NewGitHub(ctx context.Context, token string) *github.Client {
 	)))
 }
 
-func (ctrl *Controller) newRepo(reg, token string) (*remote.Repository, error) {
-	repo, err := remote.NewRepository(reg + "/suzuki-shunsuke/aqua-registry-updater")
+func (ctrl *Controller) newRepo(reg *ContainerRegistry, token string) (*remote.Repository, error) {
+	repo, err := remote.NewRepository(reg.Registry + "/" + reg.Repository)
 	if err != nil {
 		return nil, fmt.Errorf("create a client for a remote repository: %w", err)
 	}
 	repo.Client = &auth.Client{
 		Client: retry.DefaultClient,
 		Cache:  auth.DefaultCache,
-		Credential: auth.StaticCredential(reg, auth.Credential{
-			Username: "suzuki-shunsuke",
+		Credential: auth.StaticCredential(reg.Registry, auth.Credential{
+			Username: reg.Auth.Username,
 			Password: token,
-			// Password: os.Getenv("GITHUB_TOKEN"),
 		}),
 	}
 	return repo, nil
@@ -372,7 +393,18 @@ type Param struct {
 }
 
 type Config struct {
-	Limit int
+	Limit             int
+	ContainerRegistry *ContainerRegistry `yaml:"container_registry"`
+}
+
+type ContainerRegistry struct {
+	Registry   string
+	Repository string
+	Auth       *ContainerRegistryAuth
+}
+
+type ContainerRegistryAuth struct {
+	Username string
 }
 
 type Data struct {
