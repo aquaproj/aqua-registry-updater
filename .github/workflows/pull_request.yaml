@@ -62,8 +62,6 @@ jobs:
       - update-aqua-checksums
       - ghalint
       - test
-      - test-docker-prebuilt
-      - integration-test
       - go-mod-tidy
 
   renovate-config-validator:
