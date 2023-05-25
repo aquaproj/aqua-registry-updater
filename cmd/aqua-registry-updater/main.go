@@ -18,6 +18,9 @@ import (
 var version = ""
 
 func main() {
+	logrus.SetFormatter(&logrus.TextFormatter{
+		ForceColors: true,
+	})
 	logE := log.New(version)
 	if err := core(context.Background(), logE); err != nil {
 		logerr.WithError(logE, err).Fatal("aqua-registry-updater failed")
