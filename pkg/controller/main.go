@@ -70,6 +70,11 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 		return fmt.Errorf("search pkg.yaml: %w", err)
 	}
 
+	ignorePkgsM := make(map[string]struct{}, len(cfg.IgnorePackages))
+	for _, pkg := range cfg.IgnorePackages {
+		ignorePkgsM[pkg] = struct{}{}
+	}
+
 	logE.WithField("num_of_pkgs", len(pkgPaths)).Info("search pkg.yaml from pkgs")
 	for _, pkgPath := range pkgPaths {
 		pkgName := strings.TrimSuffix(strings.TrimPrefix(pkgPath, "pkgs/"), "/pkg.yaml")
@@ -99,6 +104,9 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 		idx = i
 		if cnt == cfg.Limit { // Limitation to avoid GitHub API rate limiting
 			break
+		}
+		if _, ok := ignorePkgsM[pkg.Name]; ok {
+			continue
 		}
 		logE := logE.WithField("pkg_name", pkg.Name)
 		logE.Info("handling a package")
@@ -150,7 +158,7 @@ func (ctrl *Controller) listPkgYAML() ([]string, error) {
 	return pkgPaths, nil
 }
 
-func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package) (bool, error) { //nolint:cyclop
+func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package) (bool, error) { //nolint:cyclop,funlen
 	pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
 	body, err := afero.ReadFile(ctrl.fs, pkgPath)
 	if err != nil {
@@ -185,6 +193,24 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 		return true, nil
 	}
 
+	ignoreVersionMap := map[string]struct{}{
+		"latest": {},
+		"edge":   {},
+		"stable": {},
+	}
+
+	if _, ok := ignoreVersionMap[newVersion]; ok {
+		return true, nil
+	}
+
+	automerged, err := compareVersion(currentVersion, newVersion)
+	if err != nil {
+		logerr.WithError(logE, err).Warn("compare version")
+	} else if !automerged {
+		logerr.WithError(logE, err).Warn("ignore the change")
+		return true, nil
+	}
+
 	prTitle := fmt.Sprintf("chore: update %s %s to %s", pkg.Name, currentVersion, newVersion)
 	branch := fmt.Sprintf("aqua-registry-updater-%s-%s", pkg.Name, newVersion)
 	if err := ctrl.exec(ctx, "ghcp", "commit", "-r", fmt.Sprintf("%s/%s", ctrl.param.RepoOwner, ctrl.param.RepoName), "-b", branch, "-m", prTitle, pkgPath); err != nil {
@@ -200,10 +226,6 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 		return true, fmt.Errorf("create a pull request: %w", err)
 	}
 
-	automerged, err := compareVersion(currentVersion, newVersion)
-	if err != nil {
-		logerr.WithError(logE, err).Warn("compare version")
-	}
 	if automerged {
 		if err := ctrl.exec(ctx, "gh", "-R", fmt.Sprintf("%s/%s", ctrl.param.RepoOwner, ctrl.param.RepoName), "pr", "merge", "-s", "--auto", strconv.Itoa(prNumber)); err != nil {
 			return true, fmt.Errorf("enable auto-merge: %w", err)
@@ -377,6 +399,7 @@ type Param struct {
 type Config struct {
 	Limit             int
 	ContainerRegistry *ContainerRegistry `yaml:"container_registry"`
+	IgnorePackages    []string           `yaml:"ignore_packages"`
 }
 
 type ContainerRegistry struct {
