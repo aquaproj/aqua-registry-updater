@@ -150,7 +150,7 @@ func (ctrl *Controller) listPkgYAML() ([]string, error) {
 	return pkgPaths, nil
 }
 
-func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package) (bool, error) { //nolint:cyclop,funlen
+func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package) (bool, error) { //nolint:cyclop
 	pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
 	body, err := afero.ReadFile(ctrl.fs, pkgPath)
 	if err != nil {
@@ -358,7 +358,6 @@ type Controller struct {
 
 type PullRequestsService interface {
 	Create(ctx context.Context, owner, repo string, pull *github.NewPullRequest) (*github.PullRequest, *github.Response, error)
-	Merge(ctx context.Context, owner string, repo string, number int, commitMessage string, options *github.PullRequestOptions) (*github.PullRequestMergeResult, *github.Response, error)
 }
 
 func New(fs afero.Fs, param *ParamNew, pull PullRequestsService) *Controller {
