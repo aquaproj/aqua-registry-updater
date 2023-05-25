@@ -5,7 +5,17 @@ Renovate alternative only for aqua-registry. Overcome Renovate's scalability iss
 ## GitHub Access Token
 
 - `GITHUB_TOKEN`
-- `write:packages`
+  - `pull-requests:write`
+  - `contents:write`
+- `AQUA_REGISTRY_UPDATER_CONTAINER_REGISTRY_TOKEN`
+  - classic personal access token
+  - `write:packages`
+  - `read:org`
+
+## Requirements
+
+- GitHub CLI
+- int128/ghcp
 
 ## LICENSE
 

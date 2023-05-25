@@ -25,6 +25,7 @@ func main() {
 }
 
 func core(ctx context.Context, logE *logrus.Entry) error {
+	crToken := os.Getenv("AQUA_REGISTRY_UPDATER_CONTAINER_REGISTRY_TOKEN")
 	token := os.Getenv("GITHUB_TOKEN")
 	repoOwner, repoName, found := strings.Cut(os.Getenv("GITHUB_REPOSITORY"), "/")
 	if !found {
@@ -37,6 +38,6 @@ func core(ctx context.Context, logE *logrus.Entry) error {
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	return ctrl.Update(ctx, logE, &controller.Param{ //nolint:wrapcheck
-		GitHubToken: token,
+		GitHubToken: crToken,
 	})
 }

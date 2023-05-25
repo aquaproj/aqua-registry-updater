@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/google/go-github/v52/github"
@@ -89,7 +90,7 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 			return
 		}
 		logE.Info("pushing data.json to the container registry")
-		if err := pushFiles(ctx, repo, tag); err != nil {
+		if err := pushFiles(context.Background(), repo, tag); err != nil {
 			logerr.WithError(logE, err).Error("push data.json to the container registry")
 		}
 	}()
@@ -149,11 +150,8 @@ func (ctrl *Controller) listPkgYAML() ([]string, error) {
 	return pkgPaths, nil
 }
 
-func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package) (bool, error) { //nolint:cyclop,funlen
+func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package) (bool, error) { //nolint:cyclop
 	pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
-	if err := ctrl.exec(ctx, "git", "checkout", "main"); err != nil {
-		return true, fmt.Errorf("git checkout main: %w", err)
-	}
 	body, err := afero.ReadFile(ctrl.fs, pkgPath)
 	if err != nil {
 		return false, fmt.Errorf("read pkg.yaml: %w", err)
@@ -189,17 +187,8 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 
 	prTitle := fmt.Sprintf("chore: update %s %s to %s", pkg.Name, currentVersion, newVersion)
 	branch := fmt.Sprintf("aqua-registry-updater-%s-%s", pkg.Name, newVersion)
-	if err := ctrl.exec(ctx, "git", "checkout", "-b", branch); err != nil {
+	if err := ctrl.exec(ctx, "ghcp", "commit", "-r", fmt.Sprintf("%s/%s", ctrl.param.RepoOwner, ctrl.param.RepoName), "-b", branch, "-m", prTitle, pkgPath); err != nil {
 		return true, fmt.Errorf("create a branch: %w", err)
-	}
-	if err := ctrl.exec(ctx, "git", "add", pkgPath); err != nil {
-		return true, fmt.Errorf("git add %s: %w", pkgPath, err)
-	}
-	if err := ctrl.exec(ctx, "git", "commit", "-m", prTitle); err != nil {
-		return true, fmt.Errorf(`git commit -m "%s": %w`, prTitle, err)
-	}
-	if err := ctrl.exec(ctx, "git", "push", "origin", branch); err != nil {
-		return true, fmt.Errorf(`git push origin %s: %w`, branch, err)
 	}
 	prNumber, err := ctrl.createPR(ctx, repoOwner, repoName, &ParamCreatePR{
 		NewVersion:     newVersion,
@@ -216,10 +205,8 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 		logerr.WithError(logE, err).Warn("compare version")
 	}
 	if automerged {
-		if _, _, err := ctrl.pull.Merge(ctx, ctrl.param.RepoOwner, ctrl.param.RepoName, prNumber, "", &github.PullRequestOptions{
-			MergeMethod: "squash",
-		}); err != nil {
-			logerr.WithError(logE, err).Warn("enable auto-merge")
+		if err := ctrl.exec(ctx, "gh", "-R", fmt.Sprintf("%s/%s", ctrl.param.RepoOwner, ctrl.param.RepoName), "pr", "merge", "-s", "--auto", strconv.Itoa(prNumber)); err != nil {
+			return true, fmt.Errorf("enable auto-merge: %w", err)
 		}
 	}
 	return true, nil
@@ -325,17 +312,13 @@ func (ctrl *Controller) createPR(ctx context.Context, repoOwner, repoName string
 	return pr.GetNumber(), nil
 }
 
-func (ctrl *Controller) exec(ctx context.Context, command string, args ...string) error { //nolint:unparam
+func (ctrl *Controller) exec(ctx context.Context, command string, args ...string) error {
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = ctrl.stdout
 	cmd.Stderr = ctrl.stderr
 	runner := timeout.NewRunner(0)
 	return runner.Run(ctx, cmd) //nolint:wrapcheck
 }
-
-// type RepositoriesService interface {
-// 	GetLatestRelease(ctx context.Context, owner, repo string) (*github.RepositoryRelease, *github.Response, error)
-// }
 
 func NewGitHub(ctx context.Context, token string) *github.Client {
 	return github.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(
@@ -375,7 +358,6 @@ type Controller struct {
 
 type PullRequestsService interface {
 	Create(ctx context.Context, owner, repo string, pull *github.NewPullRequest) (*github.PullRequest, *github.Response, error)
-	Merge(ctx context.Context, owner string, repo string, number int, commitMessage string, options *github.PullRequestOptions) (*github.PullRequestMergeResult, *github.Response, error)
 }
 
 func New(fs afero.Fs, param *ParamNew, pull PullRequestsService) *Controller {
