@@ -243,7 +243,7 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 		RepoName:       repoName,
 		NewVersion:     newVersion,
 		CurrentVersion: currentVersion,
-		CompareURL:     fmt.Sprintf(`[compare](https://github.com/%s/%s/compare/%s...%s)`, repoOwner, repoName, currentVersion, newVersion),
+		CompareURL:     fmt.Sprintf(`https://github.com/%s/%s/compare/%s...%s`, repoOwner, repoName, currentVersion, newVersion),
 		ReleaseURL:     fmt.Sprintf(`https://github.com/%s/%s/releases/tag/%s`, repoOwner, repoName, newVersion),
 	}
 
