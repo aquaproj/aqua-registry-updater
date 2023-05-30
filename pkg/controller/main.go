@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"text/template"
 
 	"github.com/google/go-github/v52/github"
 	"github.com/hashicorp/go-version"
@@ -110,7 +111,7 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 		}
 		logE := logE.WithField("pkg_name", pkg.Name)
 		logE.Info("handling a package")
-		incremented, err := ctrl.handlePackage(ctx, logE, pkg)
+		incremented, err := ctrl.handlePackage(ctx, logE, pkg, cfg)
 		if err != nil {
 			logerr.WithError(logE, err).Error("handle a package")
 		}
@@ -122,7 +123,7 @@ func (ctrl *Controller) Update(ctx context.Context, logE *logrus.Entry, param *P
 	return nil
 }
 
-func (cfg *Config) SetDefault(repo string) error {
+func (cfg *Config) SetDefault(repo string) error { //nolint:cyclop
 	if cfg.Limit == 0 {
 		cfg.Limit = 50
 	}
@@ -141,6 +142,31 @@ func (cfg *Config) SetDefault(repo string) error {
 	if cfg.ContainerRegistry.Auth.Username == "" {
 		return errors.New("container_registry.auth.username is required")
 	}
+	if cfg.Templates == nil {
+		cfg.Templates = &Templates{}
+	}
+	if cfg.Templates.PRTitle == "" {
+		cfg.Templates.PRTitle = "chore: update {{.PackageName}} {{.CurrentVersion}} to {{.NewVersion}}"
+	}
+	if cfg.Templates.PRBody == "" {
+		cfg.Templates.PRBody = `[{{.NewVersion}}]({{.ReleaseURL}}) [compare]({{.CompareURL}})
+
+This pull request was created by [aqua-registry-updater](https://github.com/aquaproj/aqua-registry-updater).`
+	}
+	cfg.compiledTemplates = &CompiledTemplates{}
+
+	prTitle, err := compileTemplate(cfg.Templates.PRTitle)
+	if err != nil {
+		return fmt.Errorf("compile a template pr_title: %w", err)
+	}
+	cfg.compiledTemplates.PRTitle = prTitle
+
+	prBody, err := compileTemplate(cfg.Templates.PRBody)
+	if err != nil {
+		return fmt.Errorf("compile a template pr_body: %w", err)
+	}
+	cfg.compiledTemplates.PRBody = prBody
+
 	return nil
 }
 
@@ -158,7 +184,7 @@ func (ctrl *Controller) listPkgYAML() ([]string, error) {
 	return pkgPaths, nil
 }
 
-func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package) (bool, error) { //nolint:cyclop,funlen
+func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (bool, error) { //nolint:cyclop,funlen
 	pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
 	body, err := afero.ReadFile(ctrl.fs, pkgPath)
 	if err != nil {
@@ -211,16 +237,36 @@ func (ctrl *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, p
 		return true, nil
 	}
 
-	prTitle := fmt.Sprintf("chore: update %s %s to %s", pkg.Name, currentVersion, newVersion)
+	paramTemplates := &ParamTemplates{
+		PackageName:    pkg.Name,
+		RepoOwner:      repoOwner,
+		RepoName:       repoName,
+		NewVersion:     newVersion,
+		CurrentVersion: currentVersion,
+		CompareURL:     fmt.Sprintf(`https://github.com/%s/%s/compare/%s...%s`, repoOwner, repoName, currentVersion, newVersion),
+		ReleaseURL:     fmt.Sprintf(`https://github.com/%s/%s/releases/tag/%s`, repoOwner, repoName, newVersion),
+	}
+
+	prTitle, err := renderTemplate(cfg.compiledTemplates.PRTitle, paramTemplates)
+	if err != nil {
+		return true, fmt.Errorf("render a template pr_title: %w", err)
+	}
+
+	prBody, err := renderTemplate(cfg.compiledTemplates.PRBody, paramTemplates)
+	if err != nil {
+		return true, fmt.Errorf("render a template pr_body: %w", err)
+	}
+
 	branch := fmt.Sprintf("aqua-registry-updater-%s-%s", pkg.Name, newVersion)
 	if err := ctrl.exec(ctx, "ghcp", "commit", "-r", fmt.Sprintf("%s/%s", ctrl.param.RepoOwner, ctrl.param.RepoName), "-b", branch, "-m", prTitle, pkgPath); err != nil {
 		return true, fmt.Errorf("create a branch: %w", err)
 	}
-	prNumber, err := ctrl.createPR(ctx, repoOwner, repoName, &ParamCreatePR{
+	prNumber, err := ctrl.createPR(ctx, &ParamCreatePR{
 		NewVersion:     newVersion,
 		CurrentVersion: currentVersion,
 		Title:          prTitle,
 		Branch:         branch,
+		Body:           prBody,
 	})
 	if err != nil {
 		return true, fmt.Errorf("create a pull request: %w", err)
@@ -311,22 +357,15 @@ type ParamCreatePR struct {
 	CurrentVersion string
 	Title          string
 	Branch         string
+	Body           string
 }
 
-func (ctrl *Controller) createPR(ctx context.Context, repoOwner, repoName string, param *ParamCreatePR) (int, error) {
-	newVersion := param.NewVersion
-	prBody := fmt.Sprintf(
-		`[%s](%s) [compare](https://github.com/%s/%s/compare/%s...%s)`,
-		newVersion,
-		fmt.Sprintf(`https://github.com/%s/%s/releases/tag/%s`, repoOwner, repoName, newVersion),
-		repoOwner, repoName,
-		param.CurrentVersion, newVersion,
-	)
+func (ctrl *Controller) createPR(ctx context.Context, param *ParamCreatePR) (int, error) {
 	pr, _, err := ctrl.pull.Create(ctx, ctrl.param.RepoOwner, ctrl.param.RepoName, &github.NewPullRequest{
 		Head:  github.String(param.Branch),
 		Base:  github.String("main"),
 		Title: github.String(param.Title),
-		Body:  github.String(prBody),
+		Body:  github.String(param.Body),
 	})
 	if err != nil {
 		return 0, fmt.Errorf("create a pull request: %w", err)
@@ -400,6 +439,40 @@ type Config struct {
 	Limit             int
 	ContainerRegistry *ContainerRegistry `yaml:"container_registry"`
 	IgnorePackages    []string           `yaml:"ignore_packages"`
+	Templates         *Templates
+	compiledTemplates *CompiledTemplates
+}
+
+type Templates struct {
+	PRTitle string `yaml:"pr_title"`
+	PRBody  string `yaml:"pr_body"`
+}
+
+type CompiledTemplates struct {
+	PRTitle *template.Template
+	PRBody  *template.Template
+}
+
+type ParamTemplates struct {
+	PackageName    string
+	RepoOwner      string
+	RepoName       string
+	CompareURL     string
+	ReleaseURL     string
+	NewVersion     string
+	CurrentVersion string
+}
+
+func compileTemplate(s string) (*template.Template, error) {
+	return template.New("_").Parse(s) //nolint:wrapcheck
+}
+
+func renderTemplate(tpl *template.Template, param *ParamTemplates) (string, error) {
+	b := &bytes.Buffer{}
+	if err := tpl.Execute(b, param); err != nil {
+		return "", err //nolint:wrapcheck
+	}
+	return b.String(), nil
 }
 
 type ContainerRegistry struct {
