@@ -34,13 +34,8 @@ So we decided to develop aqua-registry-updater instead of Renovate only for aqua
   - `pull-requests:write`
   - `contents:write`
 - `AQUA_REGISTRY_UPDATER_CONTAINER_REGISTRY_TOKEN`
-  - classic personal access token
-  - `write:packages`
-  - `read:org`
-
-https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
-
-> GitHub Packages only supports authentication using a personal access token (classic).
+  - [GitHub Actions Token](https://docs.github.com/en/packages/managing-github-packages-using-github-actions-workflows/publishing-and-installing-a-package-with-github-actions#upgrading-a-workflow-that-accesses-a-registry-using-a-personal-access-token)
+  - `packages:write`
 
 ## Requirements
 
