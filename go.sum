@@ -50,8 +50,8 @@ github.com/antonmedv/expr v1.15.3 h1:q3hOJZNvLvhqE8OHBs1cFRdbXFNKuA+bHmRaI+AmRmI
 github.com/antonmedv/expr v1.15.3/go.mod h1:0E/6TxnOlRNp81GMzX9QfDPAmHo2Phg00y4JUv1ihsE=
 github.com/aquaproj/aqua/v2 v2.17.0 h1:+SsM7DtdA/222M6nzfbWYH1V20hX8lVMMgvRwFZOqC4=
 github.com/aquaproj/aqua/v2 v2.17.0/go.mod h1:hOXs7wIVEnL3GgO7jShjr6CpeLXkxj+effBCigHJSbE=
-github.com/aquaproj/registry-tool v0.2.3-0.20231113103556-294018da45ca h1:CNohCT+NPoBOpvYBUfDq1jEBjRPBAy0Mscht//Xng1k=
-github.com/aquaproj/registry-tool v0.2.3-0.20231113103556-294018da45ca/go.mod h1:kYNWzHeMOkD+aq1PzCOD2JJQQSfj10LutwZO+0ZW9fs=
+github.com/aquaproj/registry-tool v0.2.3-0.20231113130647-e1d393f39719 h1:s7nH7ghH/AVo2dQoDQwsEy4Ja6/B3vunJYt9q76F1N4=
+github.com/aquaproj/registry-tool v0.2.3-0.20231113130647-e1d393f39719/go.mod h1:kYNWzHeMOkD+aq1PzCOD2JJQQSfj10LutwZO+0ZW9fs=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
 github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/buger/jsonparser v1.1.1 h1:2PnMjfWD7wBILjqQbt530v576A/cAbQvEW9gGIpYMUs=
