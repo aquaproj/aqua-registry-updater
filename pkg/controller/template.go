@@ -6,13 +6,17 @@ import (
 )
 
 type Templates struct {
-	PRTitle string `yaml:"pr_title"`
-	PRBody  string `yaml:"pr_body"`
+	PRTitle         string `yaml:"pr_title"`
+	PRBody          string `yaml:"pr_body"`
+	TransferPRTitle string `yaml:"transfer_pr_title"`
+	TransferPRBody  string `yaml:"transfer_pr_body"`
 }
 
 type CompiledTemplates struct {
-	PRTitle *template.Template
-	PRBody  *template.Template
+	PRTitle         *template.Template
+	PRBody          *template.Template
+	TransferPRTitle *template.Template
+	TransferPRBody  *template.Template
 }
 
 type ParamTemplates struct {
@@ -23,6 +27,9 @@ type ParamTemplates struct {
 	ReleaseURL     string
 	NewVersion     string
 	CurrentVersion string
+	NewRepoOwner   string
+	NewRepoName    string
+	NewPackageName string
 }
 
 func compileTemplate(s string) (*template.Template, error) {

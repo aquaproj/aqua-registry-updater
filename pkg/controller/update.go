@@ -125,6 +125,14 @@ func (c *Controller) listPkgYAML() ([]string, error) {
 }
 
 func (c *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (bool, error) { //nolint:cyclop,funlen
+	redirected, err := c.fixRedirect(ctx, logE, pkg, cfg)
+	if err != nil {
+		return false, err
+	}
+	if redirected {
+		return true, nil
+	}
+
 	pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
 	body, err := afero.ReadFile(c.fs, pkgPath)
 	if err != nil {

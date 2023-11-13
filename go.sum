@@ -40,6 +40,12 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8 h1:wPbRQzjjwFc0ih8puEVAOFGELsn1zoIIYdxvML7mDxA=
 github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8/go.mod h1:I0gYDMZ6Z5GRU7l58bNFSkPTFN6Yl12dsUlAZ8xy98g=
+github.com/aquaproj/registry-tool v0.2.3-0.20231113001736-3f10704d1534 h1:M0hFDRDEFMqn8WfUq4HVkEMBWL/pXCq4CpbFMZBKvv4=
+github.com/aquaproj/registry-tool v0.2.3-0.20231113001736-3f10704d1534/go.mod h1:kYNWzHeMOkD+aq1PzCOD2JJQQSfj10LutwZO+0ZW9fs=
+github.com/aquaproj/registry-tool v0.2.3-0.20231113100110-18687167d28d h1:7ImmFQFESqnaGB02bJXakLZzEBVX26FBitK2udS5s2c=
+github.com/aquaproj/registry-tool v0.2.3-0.20231113100110-18687167d28d/go.mod h1:kYNWzHeMOkD+aq1PzCOD2JJQQSfj10LutwZO+0ZW9fs=
+github.com/aquaproj/registry-tool v0.2.3-0.20231113103556-294018da45ca h1:CNohCT+NPoBOpvYBUfDq1jEBjRPBAy0Mscht//Xng1k=
+github.com/aquaproj/registry-tool v0.2.3-0.20231113103556-294018da45ca/go.mod h1:kYNWzHeMOkD+aq1PzCOD2JJQQSfj10LutwZO+0ZW9fs=
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
