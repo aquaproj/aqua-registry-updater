@@ -6,12 +6,12 @@ import (
 	"net/http"
 
 	"github.com/aquaproj/registry-tool/pkg/checkrepo"
-	"github.com/aquaproj/registry-tool/pkg/genrg"
+	genrg "github.com/aquaproj/registry-tool/pkg/generate-registry"
 	"github.com/aquaproj/registry-tool/pkg/mv"
 	"github.com/sirupsen/logrus"
 )
 
-func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (bool, error) { //nolint:cyclop,funlen
+func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (bool, error) {
 	httpClient := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
@@ -19,7 +19,7 @@ func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *P
 	}
 	redirect, err := checkrepo.CheckRedirect(ctx, c.fs, httpClient, pkg.Name)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("check if the repository was transferred: %w", err)
 	}
 	if redirect == nil {
 		return false, nil
@@ -31,20 +31,18 @@ func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *P
 	if err := mv.Move(ctx, c.fs, pkg.Name, redirect.NewPackageName); err != nil {
 		return false, fmt.Errorf("rename a package: %w", err)
 	}
-	// TODO aqua-registry gr: update registry.yaml
 	if err := genrg.GenerateRegistry(); err != nil {
 		return false, fmt.Errorf("update registry.yaml: %w", err)
 	}
-	// TODO Create a pull request
-	if err := c.createFixRedirectPR(ctx, logE, pkg, cfg, redirect); err != nil {
+	if err := c.createFixRedirectPR(ctx, pkg.Name, cfg, redirect); err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (c *Controller) createFixRedirectPR(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config, redirect *checkrepo.Redirect) error { //nolint:cyclop,funlen
+func (c *Controller) createFixRedirectPR(ctx context.Context, pkgName string, cfg *Config, redirect *checkrepo.Redirect) error {
 	paramTemplates := &ParamTemplates{
-		PackageName:    pkg.Name,
+		PackageName:    pkgName,
 		RepoOwner:      redirect.RepoOwner,
 		RepoName:       redirect.RepoName,
 		NewRepoOwner:   redirect.NewRepoOwner,
@@ -62,7 +60,7 @@ func (c *Controller) createFixRedirectPR(ctx context.Context, logE *logrus.Entry
 		return fmt.Errorf("render a template pr_body: %w", err)
 	}
 
-	branch := fmt.Sprintf("aqua-registry-updater-transfer-%s-", pkg.Name)
+	branch := fmt.Sprintf("aqua-registry-updater-transfer-%s-", pkgName)
 	if err := c.exec(ctx, "ghcp", "commit", "-r", fmt.Sprintf("%s/%s", c.param.RepoOwner, c.param.RepoName), "-b", branch, "-m", prTitle, ""); err != nil {
 		return fmt.Errorf("create a branch: %w", err)
 	}

@@ -27,7 +27,7 @@ type Config struct {
 	compiledTemplates *CompiledTemplates
 }
 
-func (c *Config) SetDefault(repo string) error { //nolint:cyclop
+func (c *Config) SetDefault(repo string) error { //nolint:cyclop,funlen
 	if c.Limit == 0 {
 		c.Limit = 50
 	}
