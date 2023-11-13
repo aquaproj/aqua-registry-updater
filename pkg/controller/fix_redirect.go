@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"path/filepath"
 
 	"github.com/aquaproj/registry-tool/pkg/checkrepo"
 	genrg "github.com/aquaproj/registry-tool/pkg/generate-registry"
@@ -60,8 +61,14 @@ func (c *Controller) createFixRedirectPR(ctx context.Context, pkgName string, cf
 		return fmt.Errorf("render a template pr_body: %w", err)
 	}
 
+	pkgDir := filepath.Join("pkgs", filepath.FromSlash(pkgName))
 	branch := fmt.Sprintf("aqua-registry-updater-transfer-%s-", pkgName)
-	if err := c.exec(ctx, "ghcp", "commit", "-r", fmt.Sprintf("%s/%s", c.param.RepoOwner, c.param.RepoName), "-b", branch, "-m", prTitle, ""); err != nil {
+	if err := c.exec(ctx, "ghcp", "commit",
+		"-r", fmt.Sprintf("%s/%s", c.param.RepoOwner, c.param.RepoName),
+		"-b", branch, "-m", prTitle,
+		"registry.yaml",
+		filepath.Join(pkgDir, "registry.yaml"),
+		filepath.Join(pkgDir, "pkg.yaml")); err != nil {
 		return fmt.Errorf("create a branch: %w", err)
 	}
 	if _, err := c.createPR(ctx, &ParamCreatePR{
