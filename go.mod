@@ -3,6 +3,7 @@ module github.com/suzuki-shunsuke/aqua-registry-updater
 go 1.20
 
 require (
+	github.com/aquaproj/registry-tool v0.2.3-0.20231113103556-294018da45ca
 	github.com/google/go-github/v55 v55.0.0
 	github.com/hashicorp/go-version v1.6.0
 	github.com/opencontainers/image-spec v1.1.0-rc5
@@ -22,7 +23,6 @@ require (
 	github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8 // indirect
 	github.com/antonmedv/expr v1.15.3 // indirect
 	github.com/aquaproj/aqua/v2 v2.17.0 // indirect
-	github.com/aquaproj/registry-tool v0.2.3-0.20231113103556-294018da45ca // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
@@ -51,5 +51,4 @@ require (
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
