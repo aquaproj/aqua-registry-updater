@@ -61,7 +61,7 @@ func (c *Controller) createFixRedirectPR(ctx context.Context, pkgName string, cf
 		return fmt.Errorf("render a template pr_body: %w", err)
 	}
 
-	pkgDir := filepath.Join("pkgs", filepath.FromSlash(pkgName))
+	pkgDir := filepath.Join("pkgs", filepath.FromSlash(redirect.NewPackageName))
 	branch := fmt.Sprintf("aqua-registry-updater-transfer-%s-", pkgName)
 	if err := c.exec(ctx, "ghcp", "commit",
 		"-r", fmt.Sprintf("%s/%s", c.param.RepoOwner, c.param.RepoName),
