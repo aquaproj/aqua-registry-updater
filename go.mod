@@ -3,7 +3,7 @@ module github.com/suzuki-shunsuke/aqua-registry-updater
 go 1.20
 
 require (
-	github.com/aquaproj/registry-tool v0.2.3-0.20231113130647-e1d393f39719
+	github.com/aquaproj/registry-tool v0.2.3
 	github.com/google/go-github/v55 v55.0.0
 	github.com/hashicorp/go-version v1.6.0
 	github.com/opencontainers/image-spec v1.1.0-rc5
@@ -22,7 +22,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8 // indirect
 	github.com/antonmedv/expr v1.15.3 // indirect
-	github.com/aquaproj/aqua/v2 v2.17.0 // indirect
+	github.com/aquaproj/aqua/v2 v2.17.1 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
