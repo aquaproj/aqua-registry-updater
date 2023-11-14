@@ -63,7 +63,7 @@ func (c *Controller) createFixRedirectPR(ctx context.Context, pkgName string, cf
 
 	pkgDir := filepath.Join("pkgs", filepath.FromSlash(redirect.NewPackageName))
 	oldPkgDir := filepath.Join("pkgs", filepath.FromSlash(pkgName))
-	branch := fmt.Sprintf("aqua-registry-updater-transfer-%s-", pkgName)
+	branch := fmt.Sprintf("aqua-registry-updater-transfer-%s", pkgName)
 	if err := c.exec(ctx, "ghcp", "commit",
 		"-r", fmt.Sprintf("%s/%s", c.param.RepoOwner, c.param.RepoName),
 		"-b", branch, "-m", prTitle,
