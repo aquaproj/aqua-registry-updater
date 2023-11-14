@@ -36,7 +36,7 @@ func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *P
 		return false, fmt.Errorf("update registry.yaml: %w", err)
 	}
 	defer func() {
-		if err := c.exec(ctx, "git", "checkout", "--", "registry.yaml"); err != nil {
+		if err := c.clean(ctx, redirect.NewPackageName); err != nil {
 			if e == nil {
 				e = err
 			}
@@ -46,6 +46,19 @@ func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *P
 		return false, err
 	}
 	return true, nil
+}
+
+func (c *Controller) clean(ctx context.Context, pkgName string) error {
+	if err := c.exec(ctx, "git", "checkout", "--", "."); err != nil {
+		return err
+	}
+	if err := c.fs.Remove(filepath.Join("pkgs", filepath.FromSlash(pkgName), "pkg.yaml")); err != nil {
+		return fmt.Errorf("remove new pkg.yaml: %w", err)
+	}
+	if err := c.fs.Remove(filepath.Join("pkgs", filepath.FromSlash(pkgName), "registry.yaml")); err != nil {
+		return fmt.Errorf("remove new registry.yaml: %w", err)
+	}
+	return nil
 }
 
 func (c *Controller) createFixRedirectPR(ctx context.Context, pkgName string, cfg *Config, redirect *checkrepo.Redirect) error {
