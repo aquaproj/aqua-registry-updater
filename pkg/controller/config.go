@@ -59,7 +59,7 @@ This pull request was created by [aqua-registry-updater](https://github.com/aqua
 	}
 
 	if c.Templates.TransferPRTitle == "" {
-		c.Templates.TransferPRTitle = "fix({{.PackageName}}): tranfer the repository to {{.NewRepoOwner}}/{{.NewRepoName}}"
+		c.Templates.TransferPRTitle = "fix({{.PackageName}}): transfer the repository to {{.NewRepoOwner}}/{{.NewRepoName}}"
 	}
 	if c.Templates.TransferPRBody == "" {
 		c.Templates.TransferPRBody = `The GitHub Repository of the package "{{.PackageName}}" was transferred from [{{.RepoOwner}}/{{.RepoName}}](https://github.com/{{.RepoOwner}}/{{.RepoName}}) to [{{.NewRepoOwner}}/{{.NewRepoName}}](https://github.com/{{.NewRepoOwner}}/{{.NewRepoName}})
