@@ -12,7 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (bool, error) {
+func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (f bool, e error) {
 	httpClient := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
@@ -35,6 +35,13 @@ func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *P
 	if err := genrg.GenerateRegistry(); err != nil {
 		return false, fmt.Errorf("update registry.yaml: %w", err)
 	}
+	defer func() {
+		if err := c.exec(ctx, "git", "checkout", "--", "registry.yaml"); err != nil {
+			if e == nil {
+				e = err
+			}
+		}
+	}()
 	if err := c.createFixRedirectPR(ctx, pkg.Name, cfg, redirect); err != nil {
 		return false, err
 	}
