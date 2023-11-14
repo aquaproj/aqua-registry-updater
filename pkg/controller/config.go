@@ -27,7 +27,7 @@ type Config struct {
 	compiledTemplates *CompiledTemplates
 }
 
-func (c *Config) SetDefault(repo string) error { //nolint:cyclop
+func (c *Config) SetDefault(repo string) error { //nolint:cyclop,funlen
 	if c.Limit == 0 {
 		c.Limit = 50
 	}
@@ -57,6 +57,16 @@ func (c *Config) SetDefault(repo string) error { //nolint:cyclop
 
 This pull request was created by [aqua-registry-updater](https://github.com/aquaproj/aqua-registry-updater).`
 	}
+
+	if c.Templates.TransferPRTitle == "" {
+		c.Templates.TransferPRTitle = "fix({{.PackageName}}): transfer the repository to {{.NewRepoOwner}}/{{.NewRepoName}}"
+	}
+	if c.Templates.TransferPRBody == "" {
+		c.Templates.TransferPRBody = `The GitHub Repository of the package "{{.PackageName}}" was transferred from [{{.RepoOwner}}/{{.RepoName}}](https://github.com/{{.RepoOwner}}/{{.RepoName}}) to [{{.NewRepoOwner}}/{{.NewRepoName}}](https://github.com/{{.NewRepoOwner}}/{{.NewRepoName}})
+
+This pull request was created by [aqua-registry-updater](https://github.com/aquaproj/aqua-registry-updater).`
+	}
+
 	c.compiledTemplates = &CompiledTemplates{}
 
 	prTitle, err := compileTemplate(c.Templates.PRTitle)
@@ -70,6 +80,18 @@ This pull request was created by [aqua-registry-updater](https://github.com/aqua
 		return fmt.Errorf("compile a template pr_body: %w", err)
 	}
 	c.compiledTemplates.PRBody = prBody
+
+	transferPRTitle, err := compileTemplate(c.Templates.TransferPRTitle)
+	if err != nil {
+		return fmt.Errorf("compile a template transfer_pr_title: %w", err)
+	}
+	c.compiledTemplates.TransferPRTitle = transferPRTitle
+
+	transferPRBody, err := compileTemplate(c.Templates.TransferPRBody)
+	if err != nil {
+		return fmt.Errorf("compile a template pr_body: %w", err)
+	}
+	c.compiledTemplates.TransferPRBody = transferPRBody
 
 	return nil
 }
