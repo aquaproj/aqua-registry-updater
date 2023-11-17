@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/go-version"
+	genrgst "github.com/aquaproj/aqua/v2/pkg/controller/generate-registry"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/go-timeout/timeout"
@@ -229,15 +229,18 @@ func (c *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg 
 }
 
 func compareVersion(currentVersion, newVersion string) (bool, error) {
-	c, err := version.NewVersion(currentVersion)
+	cv, cvPrefix, err := genrgst.GetVersionAndPrefix(currentVersion)
 	if err != nil {
 		return false, fmt.Errorf("parse the current version: %w", err)
 	}
-	n, err := version.NewVersion(newVersion)
+	nv, nvPrefix, err := genrgst.GetVersionAndPrefix(newVersion)
 	if err != nil {
 		return false, fmt.Errorf("parse the new version: %w", err)
 	}
-	return n.GreaterThan(c), nil
+	if cvPrefix != nvPrefix {
+		return false, nil
+	}
+	return nv.GreaterThan(cv), nil
 }
 
 func (c *Controller) getCurrentVersion(pkgName, content string) (string, error) {
