@@ -6,7 +6,6 @@ require (
 	github.com/aquaproj/aqua/v2 v2.17.5-0.20231117231600-d8b0793225ba
 	github.com/aquaproj/registry-tool v0.2.3
 	github.com/google/go-github/v55 v55.0.0
-	github.com/hashicorp/go-version v1.6.0
 	github.com/opencontainers/image-spec v1.1.0-rc5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.10.0
@@ -28,7 +27,6 @@ require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
-	github.com/codingsince1985/checksum v1.3.0 // indirect
 	github.com/dsnet/compress v0.0.2-0.20210315054119-f66993602bf5 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/forPelevin/gomoji v1.1.8 // indirect
@@ -38,6 +36,7 @@ require (
 	github.com/google/go-github/v56 v56.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/huandu/xstrings v1.3.3 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/invopop/jsonschema v0.12.0 // indirect
