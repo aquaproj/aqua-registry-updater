@@ -6,7 +6,7 @@ require (
 	github.com/aquaproj/registry-tool v0.2.3
 	github.com/google/go-github/v58 v58.0.0
 	github.com/hashicorp/go-version v1.6.0
-	github.com/opencontainers/image-spec v1.1.0-rc6
+	github.com/opencontainers/image-spec v1.1.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.11.0
 	github.com/suzuki-shunsuke/go-timeout v1.0.0
