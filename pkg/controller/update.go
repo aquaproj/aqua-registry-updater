@@ -113,6 +113,9 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 func (c *Controller) listPkgYAML() ([]string, error) {
 	pkgPaths := []string{}
 	if err := fs.WalkDir(afero.NewIOFS(c.fs), "pkgs", func(p string, dirEntry fs.DirEntry, e error) error {
+		if e != nil {
+			return e
+		}
 		if dirEntry.Name() != "pkg.yaml" {
 			return nil
 		}
