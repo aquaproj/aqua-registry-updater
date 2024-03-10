@@ -14,7 +14,7 @@ import (
 
 func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (f bool, e error) {
 	httpClient := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
 	}
@@ -83,7 +83,7 @@ func (c *Controller) createFixRedirectPR(ctx context.Context, pkgName string, cf
 
 	pkgDir := filepath.Join("pkgs", filepath.FromSlash(redirect.NewPackageName))
 	oldPkgDir := filepath.Join("pkgs", filepath.FromSlash(pkgName))
-	branch := fmt.Sprintf("aqua-registry-updater-transfer-%s", pkgName)
+	branch := "aqua-registry-updater-transfer-" + pkgName
 	if err := c.exec(ctx, "ghcp", "commit",
 		"-r", fmt.Sprintf("%s/%s", c.param.RepoOwner, c.param.RepoName),
 		"-b", branch, "-m", prTitle,
