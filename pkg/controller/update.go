@@ -149,14 +149,7 @@ func (c *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg 
 	if !found {
 		return false, errors.New("pkg name doesn't have /")
 	}
-	if repoOwner == "golang.org" {
-		// TODO
-		return false, nil
-	}
-	if strings.Contains(repoOwner, ".") {
-		// TODO
-		return false, nil
-	}
+
 	repoName, _, _ := strings.Cut(a, "/")
 
 	newVersion, err := c.updatePkgYAML(ctx, pkg.Name, pkgPath, bodyS)
@@ -193,6 +186,13 @@ func (c *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg 
 		CurrentVersion: currentVersion,
 		CompareURL:     fmt.Sprintf(`https://github.com/%s/%s/compare/%s...%s`, repoOwner, repoName, currentVersion, newVersion),
 		ReleaseURL:     fmt.Sprintf(`https://github.com/%s/%s/releases/tag/%s`, repoOwner, repoName, newVersion),
+	}
+
+	if strings.Contains(repoOwner, ".") {
+		paramTemplates.RepoOwner = ""
+		paramTemplates.RepoName = ""
+		paramTemplates.CompareURL = ""
+		paramTemplates.ReleaseURL = ""
 	}
 
 	prTitle, err := renderTemplate(cfg.compiledTemplates.PRTitle, paramTemplates)
