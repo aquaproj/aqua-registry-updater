@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.22.1
 
 require (
-	github.com/aquaproj/aqua/v2 v2.23.2
+	github.com/aquaproj/aqua/v2 v2.24.0
 	github.com/aquaproj/registry-tool v0.2.3
 	github.com/google/go-github/v60 v60.0.0
 	github.com/opencontainers/image-spec v1.1.0
