@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.22.1
 
 require (
-	github.com/aquaproj/aqua/v2 v2.24.0
+	github.com/aquaproj/aqua/v2 v2.24.1
 	github.com/aquaproj/registry-tool v0.2.3
 	github.com/google/go-github/v60 v60.0.0
 	github.com/opencontainers/image-spec v1.1.0
@@ -65,6 +65,6 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
