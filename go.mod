@@ -2,7 +2,7 @@ module github.com/suzuki-shunsuke/aqua-registry-updater
 
 go 1.21
 
-toolchain go1.22.2
+toolchain go1.22.3
 
 require (
 	github.com/aquaproj/aqua/v2 v2.24.0
