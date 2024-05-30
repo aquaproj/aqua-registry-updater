@@ -7,7 +7,7 @@ toolchain go1.22.3
 require (
 	github.com/aquaproj/aqua/v2 v2.24.0
 	github.com/aquaproj/registry-tool v0.2.3
-	github.com/google/go-github/v61 v61.0.0
+	github.com/google/go-github/v62 v62.0.0
 	github.com/opencontainers/image-spec v1.1.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.11.0
