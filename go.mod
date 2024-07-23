@@ -2,18 +2,18 @@ module github.com/suzuki-shunsuke/aqua-registry-updater
 
 go 1.21
 
-toolchain go1.22.3
+toolchain go1.22.5
 
 require (
 	github.com/aquaproj/aqua/v2 v2.24.0
 	github.com/aquaproj/registry-tool v0.2.3
-	github.com/google/go-github/v61 v61.0.0
+	github.com/google/go-github/v63 v63.0.0
 	github.com/opencontainers/image-spec v1.1.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.11.0
 	github.com/suzuki-shunsuke/go-timeout v1.0.0
 	github.com/suzuki-shunsuke/logrus-error v0.1.4
-	golang.org/x/oauth2 v0.20.0
+	golang.org/x/oauth2 v0.21.0
 	gopkg.in/yaml.v3 v3.0.1
 	oras.land/oras-go/v2 v2.2.1
 )
