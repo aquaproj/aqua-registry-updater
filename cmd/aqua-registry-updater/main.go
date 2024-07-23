@@ -8,10 +8,10 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/aquaproj/aqua-registry-updater/pkg/controller"
+	"github.com/aquaproj/aqua-registry-updater/pkg/log"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
-	"github.com/suzuki-shunsuke/aqua-registry-updater/pkg/controller"
-	"github.com/suzuki-shunsuke/aqua-registry-updater/pkg/log"
 	"github.com/suzuki-shunsuke/logrus-error/logerr"
 )
 
