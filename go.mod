@@ -34,7 +34,6 @@ require (
 	github.com/gdamore/tcell/v2 v2.6.0 // indirect
 	github.com/goccy/go-yaml v1.11.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/go-github/v60 v60.0.0 // indirect
 	github.com/google/go-github/v62 v62.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.4.0 // indirect
