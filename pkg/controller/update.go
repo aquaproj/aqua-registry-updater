@@ -76,7 +76,7 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 	}
 
 	var idx int
-	defer func() {
+	defer func() { //nolint:contextcheck
 		data.Packages = append(data.Packages[idx:], data.Packages[:idx]...)
 		if err := c.writeData("data.json", data); err != nil {
 			logerr.WithError(logE, err).Error("update data.json")
@@ -273,7 +273,7 @@ func (c *Controller) updatePkgYAML(ctx context.Context, pkgName, pkgPath, conten
 	}
 	newVersion := newLine[idx+1:]
 	lines := strings.Split(content, "\n")
-	if len(lines) < 2 { //nolint:gomnd
+	if len(lines) < 2 { //nolint:mnd
 		return "", nil
 	}
 	if strings.TrimSpace(lines[1]) == strings.TrimSpace(newLine) {
