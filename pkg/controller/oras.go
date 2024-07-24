@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"oras.land/oras-go/v2"
 	"oras.land/oras-go/v2/content/file"
 	"oras.land/oras-go/v2/registry/remote"
@@ -45,15 +46,20 @@ func pushFiles(ctx context.Context, repo *remote.Repository, tag string) error {
 	defer fs.Close()
 	mediaType := "example/file" // "application/vnd.unknown.config.v1+json"
 	fileNames := []string{"data.json"}
+	fileDescriptors := make([]v1.Descriptor, 0, len(fileNames))
 	for _, name := range fileNames {
-		if _, err := fs.Add(ctx, name, mediaType, ""); err != nil {
+		fileDescriptor, err := fs.Add(ctx, name, mediaType, "")
+		if err != nil {
 			return fmt.Errorf("add a file to the file store: %w", err)
 		}
+		fileDescriptors = append(fileDescriptors, fileDescriptor)
 	}
 
 	// 2. Pack the files and tag the packed manifest
 	artifactType := "example/files"
-	manifestDescriptor, err := oras.PackManifest(ctx, fs, oras.PackManifestVersion1_1, artifactType, oras.PackManifestOptions{})
+	manifestDescriptor, err := oras.PackManifest(ctx, fs, oras.PackManifestVersion1_1, artifactType, oras.PackManifestOptions{
+		Layers: fileDescriptors,
+	})
 	if err != nil {
 		return fmt.Errorf("pack files: %w", err)
 	}
