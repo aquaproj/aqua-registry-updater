@@ -6,6 +6,7 @@ require (
 	github.com/aquaproj/aqua/v2 v2.30.0
 	github.com/aquaproj/registry-tool v0.3.0
 	github.com/google/go-github/v63 v63.0.0
+	github.com/opencontainers/image-spec v1.1.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.11.0
 	github.com/suzuki-shunsuke/go-timeout v1.0.0
@@ -43,7 +44,6 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/nsf/termbox-go v1.1.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
