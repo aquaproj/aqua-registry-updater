@@ -7,7 +7,6 @@ jobs:
     uses: suzuki-shunsuke/go-test-full-workflow/.github/workflows/test.yaml@feat-add-go-version-file
     with:
       aqua_version: v2.30.0
-      go-version-file: go.mod
     secrets:
       gh_app_id: ${{secrets.APP_ID_AQUAPROJ_AQUA}}
       gh_app_private_key: ${{secrets.APP_PRIVATE_KEY_AQUAPROJ_AQUA}}
