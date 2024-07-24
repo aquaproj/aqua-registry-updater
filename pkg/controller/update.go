@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	genrgst "github.com/aquaproj/aqua/v2/pkg/controller/generate-registry"
+	"github.com/aquaproj/aqua/v2/pkg/versiongetter"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/go-timeout/timeout"
@@ -232,11 +232,11 @@ func (c *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg 
 }
 
 func compareVersion(currentVersion, newVersion string) (bool, error) {
-	cv, cvPrefix, err := genrgst.GetVersionAndPrefix(currentVersion)
+	cv, cvPrefix, err := versiongetter.GetVersionAndPrefix(currentVersion)
 	if err != nil {
 		return false, fmt.Errorf("parse the current version: %w", err)
 	}
-	nv, nvPrefix, err := genrgst.GetVersionAndPrefix(newVersion)
+	nv, nvPrefix, err := versiongetter.GetVersionAndPrefix(newVersion)
 	if err != nil {
 		return false, fmt.Errorf("parse the new version: %w", err)
 	}
