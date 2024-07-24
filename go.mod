@@ -1,8 +1,6 @@
 module github.com/aquaproj/aqua-registry-updater
 
-go 1.22.3
-
-toolchain go1.22.5
+go 1.22.5
 
 require (
 	github.com/aquaproj/aqua/v2 v2.28.1
