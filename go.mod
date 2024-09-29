@@ -3,7 +3,7 @@ module github.com/aquaproj/aqua-registry-updater
 go 1.22.5
 
 require (
-	github.com/aquaproj/aqua/v2 v2.35.0
+	github.com/aquaproj/aqua/v2 v2.36.0
 	github.com/aquaproj/registry-tool v0.3.0
 	github.com/google/go-github/v63 v63.0.0
 	github.com/opencontainers/image-spec v1.1.0
