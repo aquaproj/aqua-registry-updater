@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/google/go-github/v63/github"
+	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
 )
 
