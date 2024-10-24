@@ -3,7 +3,7 @@ module github.com/aquaproj/aqua-registry-updater
 go 1.23.2
 
 require (
-	github.com/aquaproj/aqua/v2 v2.36.1
+	github.com/aquaproj/aqua/v2 v2.36.2
 	github.com/aquaproj/registry-tool v0.3.1
 	github.com/google/go-github/v66 v66.0.0
 	github.com/opencontainers/image-spec v1.1.0
@@ -52,7 +52,7 @@ require (
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
