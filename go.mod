@@ -3,7 +3,7 @@ module github.com/aquaproj/aqua-registry-updater
 go 1.23.2
 
 require (
-	github.com/aquaproj/aqua/v2 v2.37.0
+	github.com/aquaproj/aqua/v2 v2.37.1
 	github.com/aquaproj/registry-tool v0.3.1
 	github.com/google/go-github/v66 v66.0.0
 	github.com/opencontainers/image-spec v1.1.0
@@ -27,7 +27,7 @@ require (
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/gdamore/tcell/v2 v2.6.0 // indirect
-	github.com/goccy/go-yaml v1.13.2 // indirect
+	github.com/goccy/go-yaml v1.13.3 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
