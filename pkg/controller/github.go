@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-github/v67/github"
+	"github.com/google/go-github/v68/github"
 	"golang.org/x/oauth2"
 )
 
@@ -24,10 +24,10 @@ type ParamCreatePR struct {
 
 func (c *Controller) createPR(ctx context.Context, param *ParamCreatePR) (int, error) {
 	pr, _, err := c.pull.Create(ctx, c.param.RepoOwner, c.param.RepoName, &github.NewPullRequest{
-		Head:  github.String(param.Branch),
-		Base:  github.String("main"),
-		Title: github.String(param.Title),
-		Body:  github.String(param.Body),
+		Head:  github.Ptr(param.Branch),
+		Base:  github.Ptr("main"),
+		Title: github.Ptr(param.Title),
+		Body:  github.Ptr(param.Body),
 	})
 	if err != nil {
 		return 0, fmt.Errorf("create a pull request: %w", err)
