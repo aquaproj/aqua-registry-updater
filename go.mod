@@ -8,7 +8,7 @@ require (
 	github.com/google/go-github/v68 v68.0.0
 	github.com/opencontainers/image-spec v1.1.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/afero v1.11.0
+	github.com/spf13/afero v1.12.0
 	github.com/suzuki-shunsuke/go-timeout v1.0.0
 	github.com/suzuki-shunsuke/logrus-error v0.1.4
 	golang.org/x/oauth2 v0.25.0
@@ -46,9 +46,9 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
-	golang.org/x/crypto v0.28.0 // indirect
-	golang.org/x/sync v0.9.0 // indirect
+	golang.org/x/crypto v0.32.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/term v0.26.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/term v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 )
