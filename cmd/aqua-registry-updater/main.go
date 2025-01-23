@@ -42,5 +42,6 @@ func core(ctx context.Context, logE *logrus.Entry) error {
 	defer stop()
 	return ctrl.Update(ctx, logE, &controller.Param{ //nolint:wrapcheck
 		GitHubToken: crToken,
+		Args:        os.Args[1:],
 	})
 }

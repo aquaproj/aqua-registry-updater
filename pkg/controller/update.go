@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/go-timeout/timeout"
 	"github.com/suzuki-shunsuke/logrus-error/logerr"
+	"oras.land/oras-go/v2/registry/remote"
 )
 
 func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Param) error { //nolint:funlen,cyclop
@@ -75,6 +76,10 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 		})
 	}
 
+	if len(param.Args) != 0 {
+		return c.handleArgs(ctx, logE, param, data, repo, tag, cfg, ignorePkgsM)
+	}
+
 	var idx int
 	defer func() { //nolint:contextcheck
 		data.Packages = append(data.Packages[idx:], data.Packages[:idx]...)
@@ -107,6 +112,36 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 		}
 	}
 
+	return nil
+}
+
+func (c *Controller) handleArgs(ctx context.Context, logE *logrus.Entry, param *Param, data *Data, repo *remote.Repository, tag string, cfg *Config, ignorePkgsM map[string]struct{}) error {
+	defer func() { //nolint:contextcheck
+		if err := c.writeData("data.json", data); err != nil {
+			logerr.WithError(logE, err).Error("update data.json")
+			return
+		}
+		logE.Info("pushing data.json to the container registry")
+		if err := pushFiles(context.Background(), repo, tag); err != nil {
+			logerr.WithError(logE, err).Error("push data.json to the container registry")
+		}
+	}()
+	for _, arg := range param.Args {
+		for i, pkg := range data.Packages {
+			if pkg.Name != arg {
+				continue
+			}
+			data.Packages = append(append(data.Packages[:i], data.Packages[i+1:]...), pkg)
+			if _, ok := ignorePkgsM[pkg.Name]; ok {
+				continue
+			}
+			logE := logE.WithField("pkg_name", pkg.Name)
+			logE.Info("handling a package")
+			if _, err := c.handlePackage(ctx, logE, pkg, cfg); err != nil {
+				logerr.WithError(logE, err).Error("handle a package")
+			}
+		}
+	}
 	return nil
 }
 
@@ -316,4 +351,5 @@ func (c *Controller) exec(ctx context.Context, command string, args ...string) e
 
 type Param struct {
 	GitHubToken string
+	Args        []string
 }
