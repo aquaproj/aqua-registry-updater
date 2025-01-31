@@ -17,4 +17,4 @@ linters:
     - musttag
     - depguard
     - gomnd # WARN The linter 'gomnd' is deprecated (since v1.58.0) due to: The linter has been renamed. Replaced by mnd. 
-    - execinquery # WARN The linter 'execinquery' is deprecated (since v1.58.0) due to: The repository of the linter has been archived by the owner.  
+    - execinquery # WARN The linter 'execinquery' is deprecated (since v1.58.0) due to: The repository of the linter has been archived by the owner.
