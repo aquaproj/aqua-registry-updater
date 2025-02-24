@@ -11,7 +11,7 @@ require (
 	github.com/spf13/afero v1.12.0
 	github.com/suzuki-shunsuke/go-timeout v1.0.0
 	github.com/suzuki-shunsuke/logrus-error v0.1.4
-	golang.org/x/oauth2 v0.26.0
+	golang.org/x/oauth2 v0.27.0
 	gopkg.in/yaml.v3 v3.0.1
 	oras.land/oras-go/v2 v2.5.0
 )
