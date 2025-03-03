@@ -6,7 +6,7 @@ require (
 	github.com/aquaproj/aqua/v2 v2.45.0
 	github.com/aquaproj/registry-tool v0.3.3
 	github.com/google/go-github/v69 v69.2.0
-	github.com/opencontainers/image-spec v1.1.0
+	github.com/opencontainers/image-spec v1.1.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.12.0
 	github.com/suzuki-shunsuke/go-timeout v1.0.0
