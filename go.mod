@@ -8,7 +8,7 @@ require (
 	github.com/google/go-github/v69 v69.2.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/afero v1.13.0
+	github.com/spf13/afero v1.14.0
 	github.com/suzuki-shunsuke/go-timeout v1.0.0
 	github.com/suzuki-shunsuke/logrus-error v0.1.4
 	golang.org/x/oauth2 v0.28.0
