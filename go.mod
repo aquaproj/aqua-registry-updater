@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	github.com/aquaproj/aqua/v2 v2.46.0
-	github.com/aquaproj/registry-tool v0.3.3
+	github.com/aquaproj/registry-tool v0.3.4
 	github.com/google/go-github/v70 v70.0.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/sirupsen/logrus v1.9.3
