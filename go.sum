@@ -8,6 +8,8 @@ github.com/Masterminds/sprig/v3 v3.3.0 h1:mQh0Yrg1XPo6vjYXgtf5OtijNAKJRNcTdOOGZe
 github.com/Masterminds/sprig/v3 v3.3.0/go.mod h1:Zy1iXRYNqNLUolqCpL4uhk6SHUMAOSCzdgBfDb35Lz0=
 github.com/aquaproj/aqua/v2 v2.48.0 h1:IvJ80A+qtJLlMcU8WQ9SyFouxgFECMXRz3A0FayEOR4=
 github.com/aquaproj/aqua/v2 v2.48.0/go.mod h1:7myASn6+yhDA1ktukwUmvn8Y4udq+ZO+oPpQfJPNQ54=
+github.com/aquaproj/aqua/v2 v2.48.1 h1:H1OprvCKTmda3FRX9U6oSShVj/xwmfKwoIiWO066L0M=
+github.com/aquaproj/aqua/v2 v2.48.1/go.mod h1:7myASn6+yhDA1ktukwUmvn8Y4udq+ZO+oPpQfJPNQ54=
 github.com/aquaproj/registry-tool v0.3.4 h1:YYjbV0hzM+SE5dXpKUgAR3cmcVADN6FF5a7zLJ10R4A=
 github.com/aquaproj/registry-tool v0.3.4/go.mod h1:Q/I3JFhNTT2b727PftcvHuhO7W2eIpRWQYRoeNeWWd4=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
