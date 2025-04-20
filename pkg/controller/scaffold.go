@@ -23,10 +23,11 @@ func (c *Controller) checkBranch(ctx context.Context, branch string) (f bool, e 
 	if err != nil {
 		return false, fmt.Errorf("send a http request: %w", err)
 	}
+	defer resp.Body.Close()
 	return resp.StatusCode == http.StatusOK, nil
 }
 
-func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (f bool, e error) {
+func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (f bool, e error) { //nolint:cyclop
 	branch := "aqua-registry-updater-scaffold-" + pkg.Name
 	if ok, err := c.checkBranch(ctx, branch); err != nil {
 		return false, fmt.Errorf("check a branch: %w", err)
