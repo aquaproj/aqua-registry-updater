@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/aquaproj/aqua/v2/pkg/config/registry"
+	genrg "github.com/aquaproj/registry-tool/pkg/generate-registry"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/go-exec/goexec"
@@ -35,6 +37,7 @@ func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Pack
 		return true, nil
 	}
 
+	pkgPath := filepath.Join("pkgs", pkg.Name, "pkg.yaml")
 	registryPath := filepath.Join("pkgs", pkg.Name, "registry.yaml")
 	body, err := afero.ReadFile(c.fs, registryPath)
 	if err != nil {
@@ -60,9 +63,26 @@ func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Pack
 	if pkgInfo.VersionConstraints == "false" {
 		return false, nil
 	}
-	logE.Info("running cmdx s")
-	if err := goexec.Command(ctx, "cmdx", "s", pkg.Name).Run(); err != nil {
-		return false, fmt.Errorf("run cmdx s %s: %w", pkg.Name, err)
+	logE.Info("re-scaffolding")
+	stat, err := c.fs.Stat(registryPath)
+	if err != nil {
+		return false, err
+	}
+	registryFile, err := c.fs.OpenFile(registryPath, os.O_RDWR|os.O_TRUNC, stat.Mode())
+	if err != nil {
+		return false, fmt.Errorf("open registry.yaml: %w", err)
+	}
+	defer registryFile.Close()
+	if _, err := registryFile.WriteString("# yaml-language-server: $schema=https://raw.githubusercontent.com/aquaproj/aqua/main/json-schema/registry.json\n"); err != nil {
+		return false, fmt.Errorf("write yaml-language-server to registry.yaml: %w", err)
+	}
+	cmd := goexec.Command(ctx, "aqua", "gr", "--out-testdata", pkgPath, pkg.Name)
+	cmd.Stdout = registryFile
+	if err := cmd.Run(); err != nil {
+		return false, fmt.Errorf("run aqua gr %s: %w", pkg.Name, err)
+	}
+	if err := genrg.GenerateRegistry(); err != nil {
+		return false, fmt.Errorf("update registry.yaml: %w", err)
 	}
 	if err := c.createScaffoldPR(ctx, pkg.Name, pkgInfo, cfg, branch); err != nil {
 		return false, fmt.Errorf("create a pull request: %w", err)
