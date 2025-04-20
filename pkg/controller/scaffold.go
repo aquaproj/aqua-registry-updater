@@ -29,7 +29,7 @@ func (c *Controller) checkBranch(ctx context.Context, branch string) (f bool, e 
 	return resp.StatusCode == http.StatusOK, nil
 }
 
-func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (f bool, e error) { //nolint:cyclop
+func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (f bool, e error) { //nolint:cyclop,funlen
 	branch := "aqua-registry-updater-scaffold-" + pkg.Name
 	if ok, err := c.checkBranch(ctx, branch); err != nil {
 		return false, fmt.Errorf("check a branch: %w", err)
@@ -66,7 +66,7 @@ func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Pack
 	logE.Info("re-scaffolding")
 	stat, err := c.fs.Stat(registryPath)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("stat registry.yaml: %w", err)
 	}
 	registryFile, err := c.fs.OpenFile(registryPath, os.O_RDWR|os.O_TRUNC, stat.Mode())
 	if err != nil {
