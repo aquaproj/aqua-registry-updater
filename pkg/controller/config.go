@@ -67,6 +67,17 @@ This pull request was created by [aqua-registry-updater](https://github.com/aqua
 This pull request was created by [aqua-registry-updater](https://github.com/aquaproj/aqua-registry-updater).`
 	}
 
+	if c.Templates.ScaffoldPRTitle == "" {
+		c.Templates.ScaffoldPRTitle = "Re-scaffold {{.PackageName}}"
+	}
+	if c.Templates.ScaffoldPRBody == "" {
+		c.Templates.ScaffoldPRBody = `[registry](https://github.com/aquaproj/aqua-registry/tree/main/pkgs/{{.PackageName}}) | [repository](https://github.com/{{.RepoOwner}}/{{.RepoName}})
+
+The command "cmdx s {{.PackageName}}" was run.
+
+This pull request was created by [aqua-registry-updater](https://github.com/aquaproj/aqua-registry-updater).`
+	}
+
 	c.compiledTemplates = &CompiledTemplates{}
 
 	prTitle, err := compileTemplate(c.Templates.PRTitle)
@@ -89,9 +100,21 @@ This pull request was created by [aqua-registry-updater](https://github.com/aqua
 
 	transferPRBody, err := compileTemplate(c.Templates.TransferPRBody)
 	if err != nil {
-		return fmt.Errorf("compile a template pr_body: %w", err)
+		return fmt.Errorf("compile a template transfer_pr_body: %w", err)
 	}
 	c.compiledTemplates.TransferPRBody = transferPRBody
+
+	scaffoldPRTitle, err := compileTemplate(c.Templates.ScaffoldPRTitle)
+	if err != nil {
+		return fmt.Errorf("compile a template scaffold_pr_title: %w", err)
+	}
+	c.compiledTemplates.ScaffoldPRTitle = scaffoldPRTitle
+
+	scaffoldPRBody, err := compileTemplate(c.Templates.ScaffoldPRBody)
+	if err != nil {
+		return fmt.Errorf("compile a template scaffold_pr_body: %w", err)
+	}
+	c.compiledTemplates.ScaffoldPRBody = scaffoldPRBody
 
 	return nil
 }

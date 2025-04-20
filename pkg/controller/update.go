@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -15,7 +14,7 @@ import (
 	"github.com/aquaproj/aqua/v2/pkg/versiongetter"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
-	"github.com/suzuki-shunsuke/go-timeout/timeout"
+	"github.com/suzuki-shunsuke/go-exec/goexec"
 	"github.com/suzuki-shunsuke/logrus-error/logerr"
 	"oras.land/oras-go/v2/registry/remote"
 )
@@ -168,6 +167,13 @@ func (c *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg 
 		return false, err
 	}
 	if redirected {
+		return true, nil
+	}
+	scaffolded, err := c.scaffold(ctx, logE, pkg, cfg)
+	if err != nil {
+		return false, err
+	}
+	if scaffolded {
 		return true, nil
 	}
 
@@ -331,22 +337,21 @@ func (c *Controller) updatePkgYAML(ctx context.Context, pkgName, pkgPath, conten
 }
 
 func (c *Controller) aquaGenerate(ctx context.Context, pkgName string) (string, error) {
-	cmd := exec.Command("aqua", "g", pkgName)
+	cmd := goexec.Command(ctx, "aqua", "g", pkgName)
 	buf := &bytes.Buffer{}
 	cmd.Stdout = buf
 	cmd.Stderr = c.stderr
-	if err := timeout.NewRunner(0).Run(ctx, cmd); err != nil {
+	if err := cmd.Run(); err != nil {
 		return "", err //nolint:wrapcheck
 	}
 	return strings.TrimSpace(buf.String()), nil
 }
 
 func (c *Controller) exec(ctx context.Context, command string, args ...string) error {
-	cmd := exec.Command(command, args...)
+	cmd := goexec.Command(ctx, command, args...)
 	cmd.Stdout = c.stdout
 	cmd.Stderr = c.stderr
-	runner := timeout.NewRunner(0)
-	return runner.Run(ctx, cmd) //nolint:wrapcheck
+	return cmd.Run() //nolint:wrapcheck
 }
 
 type Param struct {
