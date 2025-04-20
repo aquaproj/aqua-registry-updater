@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"path/filepath"
 
 	"github.com/aquaproj/aqua/v2/pkg/config/registry"
@@ -13,7 +14,26 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func (c *Controller) checkBranch(ctx context.Context, branch string) (f bool, e error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://github.com/aquaproj/aqua-registry/tree/"+branch, nil)
+	if err != nil {
+		return false, fmt.Errorf("create a http request: %w", err)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("send a http request: %w", err)
+	}
+	return resp.StatusCode == http.StatusOK, nil
+}
+
 func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (f bool, e error) {
+	branch := "aqua-registry-updater-scaffold-" + pkg.Name
+	if ok, err := c.checkBranch(ctx, branch); err != nil {
+		return false, fmt.Errorf("check a branch: %w", err)
+	} else if ok {
+		return true, nil
+	}
+
 	registryPath := filepath.Join("pkgs", pkg.Name, "registry.yaml")
 	body, err := afero.ReadFile(c.fs, registryPath)
 	if err != nil {
@@ -43,13 +63,13 @@ func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Pack
 	if err := goexec.Command(ctx, "cmdx", "s", pkg.Name).Run(); err != nil {
 		return false, fmt.Errorf("run cmdx s %s: %w", pkg.Name, err)
 	}
-	if err := c.createScaffoldPR(ctx, pkg.Name, pkgInfo, cfg); err != nil {
+	if err := c.createScaffoldPR(ctx, pkg.Name, pkgInfo, cfg, branch); err != nil {
 		return false, fmt.Errorf("create a pull request: %w", err)
 	}
 	return true, nil
 }
 
-func (c *Controller) createScaffoldPR(ctx context.Context, pkgName string, pkgInfo *registry.PackageInfo, cfg *Config) error {
+func (c *Controller) createScaffoldPR(ctx context.Context, pkgName string, pkgInfo *registry.PackageInfo, cfg *Config, branch string) error {
 	paramTemplates := &ParamTemplates{
 		PackageName: pkgName,
 		RepoOwner:   pkgInfo.RepoOwner,
@@ -67,7 +87,6 @@ func (c *Controller) createScaffoldPR(ctx context.Context, pkgName string, pkgIn
 	}
 
 	pkgDir := filepath.Join("pkgs", filepath.FromSlash(pkgName))
-	branch := "aqua-registry-updater-scaffold-" + pkgName
 	if err := c.exec(ctx, "ghcp", "commit",
 		"-r", fmt.Sprintf("%s/%s", c.param.RepoOwner, c.param.RepoName),
 		"-b", branch, "-m", prTitle,
