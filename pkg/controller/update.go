@@ -106,6 +106,9 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 		if err != nil {
 			logerr.WithError(logE, err).Error("handle a package")
 		}
+		if err := goexec.Command(ctx, "git", "checkout", "--", ".").Run(); err != nil {
+			logerr.WithError(logE, err).Error("clear changes by git checkout")
+		}
 		if incremented {
 			cnt++
 		}
