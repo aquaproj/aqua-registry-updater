@@ -10,6 +10,8 @@ type Templates struct {
 	PRBody          string `yaml:"pr_body"`
 	TransferPRTitle string `yaml:"transfer_pr_title"`
 	TransferPRBody  string `yaml:"transfer_pr_body"`
+	ScaffoldPRTitle string `yaml:"scaffold_pr_title"`
+	ScaffoldPRBody  string `yaml:"scaffold_pr_body"`
 }
 
 type CompiledTemplates struct {
@@ -17,6 +19,8 @@ type CompiledTemplates struct {
 	PRBody          *template.Template
 	TransferPRTitle *template.Template
 	TransferPRBody  *template.Template
+	ScaffoldPRTitle *template.Template
+	ScaffoldPRBody  *template.Template
 }
 
 type ParamTemplates struct {
