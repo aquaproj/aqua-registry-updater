@@ -64,6 +64,9 @@ func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Pack
 		return false, nil
 	}
 	logE.Info("re-scaffolding")
+	if err := c.fs.Remove(pkgPath); err != nil {
+		return false, fmt.Errorf("remove pkg.yaml: %w", err)
+	}
 	stat, err := c.fs.Stat(registryPath)
 	if err != nil {
 		return false, fmt.Errorf("stat registry.yaml: %w", err)
