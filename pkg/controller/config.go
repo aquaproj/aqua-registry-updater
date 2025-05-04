@@ -25,6 +25,7 @@ type Config struct {
 	IgnorePackages    []string           `yaml:"ignore_packages"`
 	Templates         *Templates
 	compiledTemplates *CompiledTemplates
+	Scaffold          bool
 }
 
 func (c *Config) SetDefault(repo string) error { //nolint:cyclop,funlen
