@@ -172,7 +172,7 @@ func (c *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg 
 	if redirected {
 		return true, nil
 	}
-	if cfg.Scaffold {
+	if cfg.Scaffold.IsEnabled() {
 		scaffolded, err := c.scaffold(ctx, logE, pkg, cfg)
 		if err != nil {
 			return false, err
