@@ -25,6 +25,15 @@ type Config struct {
 	IgnorePackages    []string           `yaml:"ignore_packages"`
 	Templates         *Templates
 	compiledTemplates *CompiledTemplates
+	Scaffold          *ScaffoldConfig `yaml:"scaffold"`
+}
+
+type ScaffoldConfig struct {
+	Enabled bool
+}
+
+func (s *ScaffoldConfig) IsEnabled() bool {
+	return s != nil && s.Enabled
 }
 
 func (c *Config) SetDefault(repo string) error { //nolint:cyclop,funlen
