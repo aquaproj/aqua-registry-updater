@@ -3,7 +3,7 @@ module github.com/aquaproj/aqua-registry-updater
 go 1.24.2
 
 require (
-	github.com/aquaproj/aqua/v2 v2.50.0
+	github.com/aquaproj/aqua/v2 v2.50.1
 	github.com/aquaproj/registry-tool v0.3.5
 	github.com/google/go-github/v71 v71.0.0
 	github.com/opencontainers/image-spec v1.1.1
@@ -41,6 +41,8 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/nsf/termbox-go v1.1.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/otiai10/copy v1.14.1 // indirect
+	github.com/otiai10/mint v1.6.3 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
