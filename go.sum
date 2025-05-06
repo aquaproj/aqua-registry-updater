@@ -6,8 +6,6 @@ github.com/Masterminds/semver/v3 v3.3.0 h1:B8LGeaivUe71a5qox1ICM/JLl0NqZSW5CHyL+
 github.com/Masterminds/semver/v3 v3.3.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/Masterminds/sprig/v3 v3.3.0 h1:mQh0Yrg1XPo6vjYXgtf5OtijNAKJRNcTdOOGZe3tPhs=
 github.com/Masterminds/sprig/v3 v3.3.0/go.mod h1:Zy1iXRYNqNLUolqCpL4uhk6SHUMAOSCzdgBfDb35Lz0=
-github.com/aquaproj/aqua/v2 v2.50.0 h1:MDAvtxQlUaZonSYa1nJkvfwp/3yIVXtWJHJFnR5GrfA=
-github.com/aquaproj/aqua/v2 v2.50.0/go.mod h1:YLxja6U0R3u2CJMExbzoXWHSWTquTMaqsT6jIE0UUWY=
 github.com/aquaproj/aqua/v2 v2.50.1 h1:GOHeIQzPZet95cxT6wJBM1BmMwA2kwBXU5NyVrBCf/M=
 github.com/aquaproj/aqua/v2 v2.50.1/go.mod h1:crPwPrs9WNQoTEqbVsaa8eLyZUf4EQMDuiQOpZv+J/I=
 github.com/aquaproj/registry-tool v0.3.5 h1:pPg6czRu38fQmyBcHpQEd8DjXu7udVpKfFzbHp2Feec=
