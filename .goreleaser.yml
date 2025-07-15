@@ -12,7 +12,7 @@ builds:
     goarch:
       - amd64
 release:
-  prerelease: true
+  prerelease: "true"
   header: |
     [Pull Requests](https://github.com/aquaproj/aqua-registry-updater/pulls?q=is%3Apr+milestone%3A{{.Tag}}) | [Issues](https://github.com/aquaproj/aqua-registry-updater/issues?q=is%3Aissue+milestone%3A{{.Tag}}) | https://github.com/aquaproj/aqua-registry-updater/compare/{{.PreviousTag}}...{{.Tag}}
 signs:
