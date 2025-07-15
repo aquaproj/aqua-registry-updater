@@ -2,6 +2,10 @@
 project_name: aqua-registry-updater
 archives:
   - name_template: "{{.ProjectName}}_{{.Os}}_{{.Arch}}"
+    files:
+      - LICENSE
+      - README.md
+      - third_party_licenses/**/*
 builds:
   - binary: aqua-registry-updater
     main: cmd/aqua-registry-updater/main.go
