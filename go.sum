@@ -8,8 +8,8 @@ github.com/Masterminds/semver/v3 v3.3.0 h1:B8LGeaivUe71a5qox1ICM/JLl0NqZSW5CHyL+
 github.com/Masterminds/semver/v3 v3.3.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/Masterminds/sprig/v3 v3.3.0 h1:mQh0Yrg1XPo6vjYXgtf5OtijNAKJRNcTdOOGZe3tPhs=
 github.com/Masterminds/sprig/v3 v3.3.0/go.mod h1:Zy1iXRYNqNLUolqCpL4uhk6SHUMAOSCzdgBfDb35Lz0=
-github.com/aquaproj/aqua/v2 v2.53.5 h1:AAvkorXycb/s5g7/TUCEW5f/EXGrdQl1cFRNAoIdPHs=
-github.com/aquaproj/aqua/v2 v2.53.5/go.mod h1:6Ru+TTBJ8kalTOci96ODiPxCvBHC1ptZZh4USAZ6+tA=
+github.com/aquaproj/aqua/v2 v2.53.6 h1:yepMlDr6CLWM+fdL7vaGADnyBmmmj3hJ1uJ0n7aZrxA=
+github.com/aquaproj/aqua/v2 v2.53.6/go.mod h1:6Ru+TTBJ8kalTOci96ODiPxCvBHC1ptZZh4USAZ6+tA=
 github.com/aquaproj/registry-tool v0.3.6 h1:WA/7XGK7Sd1x98xZr8W1twmRrpDiWqY1BBReoULY7b4=
 github.com/aquaproj/registry-tool v0.3.6/go.mod h1:yLAbpRBPQ+aJG1JpiBueUzY9GRK2tLq10wO6GI2oTHQ=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
