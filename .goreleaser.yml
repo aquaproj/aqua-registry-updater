@@ -19,23 +19,6 @@ release:
   prerelease: "true"
   header: |
     [Pull Requests](https://github.com/aquaproj/aqua-registry-updater/pulls?q=is%3Apr+milestone%3A{{.Tag}}) | [Issues](https://github.com/aquaproj/aqua-registry-updater/issues?q=is%3Aissue+milestone%3A{{.Tag}}) | https://github.com/aquaproj/aqua-registry-updater/compare/{{.PreviousTag}}...{{.Tag}}
-signs:
-  - cmd: cosign
-    artifacts: checksum
-    signature: ${artifact}.sig
-    certificate: ${artifact}.pem
-    output: true
-    env:
-      - COSIGN_EXPERIMENTAL=1
-    args:
-      - sign-blob
-      - --output-signature
-      - ${signature}
-      - --output-certificate
-      - ${certificate}
-      - --oidc-provider
-      - github
-      - ${artifact}
 
 sboms:
   - id: default
