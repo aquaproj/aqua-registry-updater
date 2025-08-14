@@ -21,7 +21,7 @@ aqua-registry has over 1,100 dependencies.
 The number of dependencies is so many that Whitesource Renovate doesn't work well.
 We tuned Renovate Configuration, but we couldn't solve the issue completely.
 
-Continous update is crucial for aqua-registry because aqua-registry is tested by CI.
+Continuous update is crucial for aqua-registry because aqua-registry is tested by CI.
 If dependencies aren't updated, we can't find aqua-registry is broken.
 
 So we decided to develop aqua-registry-updater instead of Renovate only for aqua-registry.
