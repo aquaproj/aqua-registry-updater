@@ -3,7 +3,7 @@ module github.com/aquaproj/aqua-registry-updater
 go 1.25.1
 
 require (
-	github.com/aquaproj/aqua/v2 v2.54.1
+	github.com/aquaproj/aqua/v2 v2.55.0
 	github.com/aquaproj/registry-tool v0.3.6
 	github.com/google/go-github/v74 v74.0.0
 	github.com/opencontainers/image-spec v1.1.1
@@ -53,7 +53,7 @@ require (
 	github.com/samber/slog-logrus v1.0.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
-	github.com/suzuki-shunsuke/ghtkn-go-sdk v0.2.0 // indirect
+	github.com/suzuki-shunsuke/ghtkn-go-sdk v0.2.1 // indirect
 	github.com/suzuki-shunsuke/go-retryablehttp v0.7.8-1 // indirect
 	github.com/suzuki-shunsuke/go-retryablehttp-logrus v0.0.1 // indirect
 	github.com/suzuki-shunsuke/slog-error v0.2.0 // indirect
@@ -65,6 +65,6 @@ require (
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/term v0.34.0 // indirect
+	golang.org/x/term v0.35.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 )
