@@ -5,7 +5,7 @@ go 1.25.3
 require (
 	github.com/aquaproj/aqua/v2 v2.55.0
 	github.com/aquaproj/registry-tool v0.3.6
-	github.com/google/go-github/v75 v75.0.0
+	github.com/google/go-github/v76 v76.0.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.15.0
