@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/aquaproj/aqua/v2/pkg/config/registry"
 	genrg "github.com/aquaproj/registry-tool/pkg/generate-registry"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/go-exec/goexec"
 	"gopkg.in/yaml.v3"
@@ -29,7 +29,7 @@ func (c *Controller) checkBranch(ctx context.Context, branch string) (f bool, e 
 	return resp.StatusCode == http.StatusOK, nil
 }
 
-func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (f bool, e error) { //nolint:cyclop,funlen
+func (c *Controller) scaffold(ctx context.Context, logger *slog.Logger, pkg *Package, cfg *Config) (f bool, e error) { //nolint:cyclop,funlen
 	branch := "aqua-registry-updater-scaffold-" + pkg.Name
 	if ok, err := c.checkBranch(ctx, branch); err != nil {
 		return false, fmt.Errorf("check a branch: %w", err)
@@ -63,7 +63,7 @@ func (c *Controller) scaffold(ctx context.Context, logE *logrus.Entry, pkg *Pack
 	if pkgInfo.VersionConstraints == "false" {
 		return false, nil
 	}
-	logE.Info("re-scaffolding")
+	logger.Info("re-scaffolding")
 	if err := c.fs.Remove(pkgPath); err != nil {
 		return false, fmt.Errorf("remove pkg.yaml: %w", err)
 	}

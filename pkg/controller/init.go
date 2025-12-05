@@ -3,11 +3,10 @@ package controller
 import (
 	"context"
 	"fmt"
-
-	"github.com/sirupsen/logrus"
+	"log/slog"
 )
 
-func (c *Controller) Init(ctx context.Context, _ *logrus.Entry, param *Param) error {
+func (c *Controller) Init(ctx context.Context, _ *slog.Logger, param *Param) error {
 	cfg := &Config{}
 	if err := c.readConfig("aqua-registry-updater.yaml", cfg); err != nil {
 		return err

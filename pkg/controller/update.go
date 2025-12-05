@@ -6,20 +6,20 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/aquaproj/aqua/v2/pkg/versiongetter"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/go-exec/goexec"
-	"github.com/suzuki-shunsuke/logrus-error/logerr"
+	"github.com/suzuki-shunsuke/slog-error/slogerr"
 	"oras.land/oras-go/v2/registry/remote"
 )
 
-func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Param) error { //nolint:funlen,cyclop
+func (c *Controller) Update(ctx context.Context, logger *slog.Logger, param *Param) error { //nolint:funlen,cyclop
 	cfg := &Config{}
 	if err := c.readConfig("aqua-registry-updater.yaml", cfg); err != nil {
 		return err
@@ -36,7 +36,7 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 
 	const tag = "latest"
 
-	logE.Info("pulling data from the container registry")
+	logger.Info("pulling data from the container registry")
 	if err := pullFiles(ctx, repo, tag); err != nil {
 		return err
 	}
@@ -46,13 +46,13 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 		return err
 	}
 
-	logE.WithField("num_of_packages", len(data.Packages)).Info("read data.json")
+	logger.Info("read data.json", "num_of_packages", len(data.Packages))
 	pkgM := make(map[string]struct{}, len(data.Packages))
 	for _, pkg := range data.Packages {
 		pkgM[pkg.Name] = struct{}{}
 	}
 
-	logE.Info("searching pkg.yaml from pkgs")
+	logger.Info("searching pkg.yaml from pkgs")
 	pkgPaths, err := c.listPkgYAML()
 	if err != nil {
 		return fmt.Errorf("search pkg.yaml: %w", err)
@@ -63,7 +63,7 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 		ignorePkgsM[pkg] = struct{}{}
 	}
 
-	logE.WithField("num_of_pkgs", len(pkgPaths)).Info("search pkg.yaml from pkgs")
+	logger.Info("search pkg.yaml from pkgs", "num_of_pkgs", len(pkgPaths))
 	for _, pkgPath := range pkgPaths {
 		pkgName := strings.TrimSuffix(strings.TrimPrefix(pkgPath, "pkgs/"), "/pkg.yaml")
 		if _, ok := pkgM[pkgName]; ok {
@@ -76,19 +76,19 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 	}
 
 	if len(param.Args) != 0 {
-		return c.handleArgs(ctx, logE, param, data, repo, tag, cfg, ignorePkgsM)
+		return c.handleArgs(ctx, logger, param, data, repo, tag, cfg, ignorePkgsM)
 	}
 
 	var idx int
 	defer func() { //nolint:contextcheck
 		data.Packages = append(data.Packages[idx:], data.Packages[:idx]...)
 		if err := c.writeData("data.json", data); err != nil {
-			logerr.WithError(logE, err).Error("update data.json")
+			slogerr.WithError(logger, err).Error("update data.json")
 			return
 		}
-		logE.Info("pushing data.json to the container registry")
+		logger.Info("pushing data.json to the container registry")
 		if err := pushFiles(context.Background(), repo, tag); err != nil {
-			logerr.WithError(logE, err).Error("push data.json to the container registry")
+			slogerr.WithError(logger, err).Error("push data.json to the container registry")
 		}
 	}()
 	cnt := 0
@@ -100,14 +100,14 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 		if _, ok := ignorePkgsM[pkg.Name]; ok {
 			continue
 		}
-		logE := logE.WithField("pkg_name", pkg.Name)
-		logE.Info("handling a package")
-		incremented, err := c.handlePackage(ctx, logE, pkg, cfg)
+		logger := logger.With("pkg_name", pkg.Name)
+		logger.Info("handling a package")
+		incremented, err := c.handlePackage(ctx, logger, pkg, cfg)
 		if err != nil {
-			logerr.WithError(logE, err).Error("handle a package")
+			slogerr.WithError(logger, err).Error("handle a package")
 		}
 		if err := goexec.Command(ctx, "git", "checkout", "--", ".").Run(); err != nil {
-			logerr.WithError(logE, err).Error("clear changes by git checkout")
+			slogerr.WithError(logger, err).Error("clear changes by git checkout")
 		}
 		if incremented {
 			cnt++
@@ -117,15 +117,15 @@ func (c *Controller) Update(ctx context.Context, logE *logrus.Entry, param *Para
 	return nil
 }
 
-func (c *Controller) handleArgs(ctx context.Context, logE *logrus.Entry, param *Param, data *Data, repo *remote.Repository, tag string, cfg *Config, ignorePkgsM map[string]struct{}) error {
+func (c *Controller) handleArgs(ctx context.Context, logger *slog.Logger, param *Param, data *Data, repo *remote.Repository, tag string, cfg *Config, ignorePkgsM map[string]struct{}) error {
 	defer func() { //nolint:contextcheck
 		if err := c.writeData("data.json", data); err != nil {
-			logerr.WithError(logE, err).Error("update data.json")
+			slogerr.WithError(logger, err).Error("update data.json")
 			return
 		}
-		logE.Info("pushing data.json to the container registry")
+		logger.Info("pushing data.json to the container registry")
 		if err := pushFiles(context.Background(), repo, tag); err != nil {
-			logerr.WithError(logE, err).Error("push data.json to the container registry")
+			slogerr.WithError(logger, err).Error("push data.json to the container registry")
 		}
 	}()
 	for _, arg := range param.Args {
@@ -137,10 +137,10 @@ func (c *Controller) handleArgs(ctx context.Context, logE *logrus.Entry, param *
 			if _, ok := ignorePkgsM[pkg.Name]; ok {
 				continue
 			}
-			logE := logE.WithField("pkg_name", pkg.Name)
-			logE.Info("handling a package")
-			if _, err := c.handlePackage(ctx, logE, pkg, cfg); err != nil {
-				logerr.WithError(logE, err).Error("handle a package")
+			logger := logger.With("pkg_name", pkg.Name)
+			logger.Info("handling a package")
+			if _, err := c.handlePackage(ctx, logger, pkg, cfg); err != nil {
+				slogerr.WithError(logger, err).Error("handle a package")
 			}
 		}
 	}
@@ -164,8 +164,8 @@ func (c *Controller) listPkgYAML() ([]string, error) {
 	return pkgPaths, nil
 }
 
-func (c *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (bool, error) { //nolint:cyclop,funlen
-	redirected, err := c.fixRedirect(ctx, logE, pkg, cfg)
+func (c *Controller) handlePackage(ctx context.Context, logger *slog.Logger, pkg *Package, cfg *Config) (bool, error) { //nolint:cyclop,funlen
+	redirected, err := c.fixRedirect(ctx, logger, pkg, cfg)
 	if err != nil {
 		return false, err
 	}
@@ -173,7 +173,7 @@ func (c *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg 
 		return true, nil
 	}
 	if cfg.Scaffold.IsEnabled() {
-		scaffolded, err := c.scaffold(ctx, logE, pkg, cfg)
+		scaffolded, err := c.scaffold(ctx, logger, pkg, cfg)
 		if err != nil {
 			return false, err
 		}
@@ -221,9 +221,9 @@ func (c *Controller) handlePackage(ctx context.Context, logE *logrus.Entry, pkg 
 
 	automerged, err := compareVersion(currentVersion, newVersion)
 	if err != nil {
-		logerr.WithError(logE, err).Warn("compare version")
+		slogerr.WithError(logger, err).Warn("compare version")
 	} else if !automerged {
-		logerr.WithError(logE, err).Warn("ignore the change")
+		slogerr.WithError(logger, err).Warn("ignore the change")
 		return true, nil
 	}
 
