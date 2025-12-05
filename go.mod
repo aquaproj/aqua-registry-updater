@@ -9,7 +9,7 @@ require (
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/spf13/afero v1.15.0
 	github.com/suzuki-shunsuke/go-exec v0.0.1
-	github.com/suzuki-shunsuke/slog-error v0.2.0
+	github.com/suzuki-shunsuke/slog-error v0.2.1
 	github.com/suzuki-shunsuke/slog-util v0.2.2
 	golang.org/x/oauth2 v0.33.0
 	gopkg.in/yaml.v3 v3.0.1
