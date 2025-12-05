@@ -133,8 +133,6 @@ github.com/suzuki-shunsuke/go-retryablehttp-logrus v0.0.1 h1:Y+pdnQdt4SYyAyr24MH
 github.com/suzuki-shunsuke/go-retryablehttp-logrus v0.0.1/go.mod h1:5AZJWWx3A7KudKLEkW8cwxSKWLHXElP9odOD+721oKQ=
 github.com/suzuki-shunsuke/logrus-error v0.1.4 h1:nWo98uba1fANHdZ9Y5pJ2RKs/PpVjrLzRp5m+mRb9KE=
 github.com/suzuki-shunsuke/logrus-error v0.1.4/go.mod h1:WsVvvw6SKSt08/fB2qbnsKIMJA4K1MYCUprqsBJbMiM=
-github.com/suzuki-shunsuke/slog-error v0.2.0 h1:XghEeRu6nchSxvzbqT5PpZgk5Dd6ZJSxx0VFSBMQysU=
-github.com/suzuki-shunsuke/slog-error v0.2.0/go.mod h1:w45QyO2G0uiEuo9hhrcLqqRl3hmYon9jGgq9CrCxxOY=
 github.com/suzuki-shunsuke/slog-error v0.2.1 h1:zcWOEo451RWmgusiONt/GueyvkTL7n4qA0ZJ3gTEjbA=
 github.com/suzuki-shunsuke/slog-error v0.2.1/go.mod h1:w45QyO2G0uiEuo9hhrcLqqRl3hmYon9jGgq9CrCxxOY=
 github.com/suzuki-shunsuke/slog-logrus v0.1.0 h1:2TWmkFQLslanaR0Ks5eQvcapVtIBqxDgl79FoxBTNT8=
