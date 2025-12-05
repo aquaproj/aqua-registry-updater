@@ -2,37 +2,38 @@ package main
 
 import (
 	"context"
-	"errors"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 
 	"github.com/aquaproj/aqua-registry-updater/pkg/controller"
-	"github.com/aquaproj/aqua-registry-updater/pkg/log"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
-	"github.com/suzuki-shunsuke/logrus-error/logerr"
+	"github.com/suzuki-shunsuke/slog-error/slogerr"
+	"github.com/suzuki-shunsuke/slog-util/slogutil"
 )
 
 var version = ""
 
 func main() {
-	logrus.SetFormatter(&logrus.TextFormatter{
-		ForceColors: true,
-	})
-	logE := log.New(version)
-	if err := core(context.Background(), logE); err != nil {
-		logerr.WithError(logE, err).Fatal("aqua-registry-updater failed")
+	if code := core(); code != 0 {
+		os.Exit(code)
 	}
 }
 
-func core(ctx context.Context, logE *logrus.Entry) error {
+func core() int {
+	logger := slogutil.New(&slogutil.InputNew{
+		Name:    "aqua-registry-updater",
+		Version: version,
+		Out:     os.Stderr,
+	})
+	ctx := context.Background()
 	crToken := os.Getenv("AQUA_REGISTRY_UPDATER_CONTAINER_REGISTRY_TOKEN")
 	token := os.Getenv("GITHUB_TOKEN")
 	repoOwner, repoName, found := strings.Cut(os.Getenv("GITHUB_REPOSITORY"), "/")
 	if !found {
-		return errors.New("GITHUB_REPOSITORY should include /")
+		logger.Error("GITHUB_REPOSITORY should include /")
+		return 1
 	}
 	ctrl := controller.New(afero.NewOsFs(), &controller.ParamNew{
 		RepoOwner: repoOwner,
@@ -40,8 +41,12 @@ func core(ctx context.Context, logE *logrus.Entry) error {
 	}, controller.NewGitHub(ctx, token).PullRequests)
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	return ctrl.Update(ctx, logE, &controller.Param{ //nolint:wrapcheck
+	if err := ctrl.Update(ctx, logger, &controller.Param{
 		GitHubToken: crToken,
 		Args:        os.Args[1:],
-	})
+	}); err != nil {
+		slogerr.WithError(logger, err).Error("aqua-registry-updater failed")
+		return 1
+	}
+	return 0
 }

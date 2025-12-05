@@ -3,16 +3,16 @@ package controller
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"path/filepath"
 
 	"github.com/aquaproj/registry-tool/pkg/checkrepo"
 	genrg "github.com/aquaproj/registry-tool/pkg/generate-registry"
 	"github.com/aquaproj/registry-tool/pkg/mv"
-	"github.com/sirupsen/logrus"
 )
 
-func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *Package, cfg *Config) (f bool, e error) {
+func (c *Controller) fixRedirect(ctx context.Context, logger *slog.Logger, pkg *Package, cfg *Config) (f bool, e error) {
 	httpClient := &http.Client{
 		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
 			return http.ErrUseLastResponse
@@ -25,10 +25,7 @@ func (c *Controller) fixRedirect(ctx context.Context, logE *logrus.Entry, pkg *P
 	if redirect == nil {
 		return false, nil
 	}
-	logE.WithFields(logrus.Fields{
-		"repo_owner": redirect.NewRepoOwner,
-		"repo_name":  redirect.NewRepoName,
-	}).Info("the package's repository was transferred")
+	logger.Info("the package's repository was transferred", "repo_owner", redirect.NewRepoOwner, "repo_name", redirect.NewRepoName)
 	if err := mv.Move(ctx, c.fs, pkg.Name, redirect.NewPackageName); err != nil {
 		return false, fmt.Errorf("rename a package: %w", err)
 	}
