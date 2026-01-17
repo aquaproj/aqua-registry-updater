@@ -133,6 +133,8 @@ github.com/suzuki-shunsuke/logrus-error v0.1.4 h1:nWo98uba1fANHdZ9Y5pJ2RKs/PpVjr
 github.com/suzuki-shunsuke/logrus-error v0.1.4/go.mod h1:WsVvvw6SKSt08/fB2qbnsKIMJA4K1MYCUprqsBJbMiM=
 github.com/suzuki-shunsuke/slog-error v0.2.1 h1:zcWOEo451RWmgusiONt/GueyvkTL7n4qA0ZJ3gTEjbA=
 github.com/suzuki-shunsuke/slog-error v0.2.1/go.mod h1:w45QyO2G0uiEuo9hhrcLqqRl3hmYon9jGgq9CrCxxOY=
+github.com/suzuki-shunsuke/slog-error v0.2.2 h1:z8rymlIlZcMA+ERnnhVigQ0Q+X0pxKqBfDzSIyGh6vU=
+github.com/suzuki-shunsuke/slog-error v0.2.2/go.mod h1:w45QyO2G0uiEuo9hhrcLqqRl3hmYon9jGgq9CrCxxOY=
 github.com/suzuki-shunsuke/slog-logrus v0.1.0 h1:2TWmkFQLslanaR0Ks5eQvcapVtIBqxDgl79FoxBTNT8=
 github.com/suzuki-shunsuke/slog-logrus v0.1.0/go.mod h1:8D0Q3JbjzYWr/e1D4FqD3dODU6OK2H9Lkhid9vXz56A=
 github.com/suzuki-shunsuke/slog-util v0.2.2 h1:sSAZvjWign2hE//CdFvcY0/vbHpGEpq70PH/DUX2BUg=
