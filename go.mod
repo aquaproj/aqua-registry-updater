@@ -10,7 +10,7 @@ require (
 	github.com/spf13/afero v1.15.0
 	github.com/suzuki-shunsuke/go-exec v0.0.1
 	github.com/suzuki-shunsuke/slog-error v0.2.2
-	github.com/suzuki-shunsuke/slog-util v0.2.2
+	github.com/suzuki-shunsuke/slog-util v0.3.2
 	golang.org/x/oauth2 v0.36.0
 	gopkg.in/yaml.v3 v3.0.1
 	oras.land/oras-go/v2 v2.5.0
@@ -39,7 +39,7 @@ require (
 	github.com/invopop/jsonschema v0.13.0 // indirect
 	github.com/ktr0731/go-ansisgr v0.1.0 // indirect
 	github.com/ktr0731/go-fuzzyfinder v0.9.0 // indirect
-	github.com/lmittmann/tint v1.1.2 // indirect
+	github.com/lmittmann/tint v1.1.3 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
