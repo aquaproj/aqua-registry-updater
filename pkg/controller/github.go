@@ -24,10 +24,10 @@ type ParamCreatePR struct {
 
 func (c *Controller) createPR(ctx context.Context, param *ParamCreatePR) (int, error) {
 	pr, _, err := c.pull.Create(ctx, c.param.RepoOwner, c.param.RepoName, &github.NewPullRequest{
-		Head:  github.Ptr(param.Branch),
-		Base:  github.Ptr("main"),
-		Title: github.Ptr(param.Title),
-		Body:  github.Ptr(param.Body),
+		Head:  new(param.Branch),
+		Base:  new("main"),
+		Title: new(param.Title),
+		Body:  new(param.Body),
 	})
 	if err != nil {
 		return 0, fmt.Errorf("create a pull request: %w", err)
