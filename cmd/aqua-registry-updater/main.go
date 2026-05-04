@@ -41,11 +41,11 @@ func core() int {
 	}, controller.NewGitHub(ctx, token).PullRequests)
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	if err := ctrl.Update(ctx, logger, &controller.Param{
+	if err := ctrl.Update(ctx, logger.Logger, &controller.Param{
 		GitHubToken: crToken,
 		Args:        os.Args[1:],
 	}); err != nil {
-		slogerr.WithError(logger, err).Error("aqua-registry-updater failed")
+		slogerr.WithError(logger.Logger, err).Error("aqua-registry-updater failed")
 		return 1
 	}
 	return 0
