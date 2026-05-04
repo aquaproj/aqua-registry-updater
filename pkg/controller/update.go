@@ -313,11 +313,10 @@ func (c *Controller) updatePkgYAML(ctx context.Context, pkgName, pkgPath, conten
 	if err != nil {
 		return "", err
 	}
-	idx := strings.Index(newLine, "@")
-	if idx == -1 {
+	_, newVersion, found := strings.Cut(newLine, "@")
+	if !found {
 		return "", nil
 	}
-	newVersion := newLine[idx+1:]
 	lines := strings.Split(content, "\n")
 	if len(lines) < 2 { //nolint:mnd
 		return "", nil
