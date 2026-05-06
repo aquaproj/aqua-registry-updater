@@ -12,6 +12,8 @@ github.com/aquaproj/aqua/v2 v2.58.0 h1:nsDBfhH+uNNw5bScYnQq1Y6XrNW89+0soBJp1qGuk
 github.com/aquaproj/aqua/v2 v2.58.0/go.mod h1:tW1P9Xuu6bDX+vZGfKEc+mY4nVc/eaeE0se43YjJEy4=
 github.com/aquaproj/registry-tool v0.3.6 h1:WA/7XGK7Sd1x98xZr8W1twmRrpDiWqY1BBReoULY7b4=
 github.com/aquaproj/registry-tool v0.3.6/go.mod h1:yLAbpRBPQ+aJG1JpiBueUzY9GRK2tLq10wO6GI2oTHQ=
+github.com/aquaproj/registry-tool v0.5.2 h1:NtTxG+soc9xu5W9xuFqXRYwolKzeYcjAsZkFgOG4W+U=
+github.com/aquaproj/registry-tool v0.5.2/go.mod h1:ihvLtV/y1vUj9U3+zGgLDXRzZiSSKKBKYFrUfuixBXk=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
 github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/buger/jsonparser v1.1.2 h1:frqHqw7otoVbk5M8LlE/L7HTnIq2v9RX6EJ48i9AxJk=
@@ -184,6 +186,8 @@ golang.org/x/text v0.7.0/go.mod h1:mrYo+phRRbMaCq/xk9113O4dZlRixOauAjOtrjsXDZ8=
 golang.org/x/text v0.14.0/go.mod h1:18ZOQIKpY8NJVqYksKHtTdi31H5itFRjB5/qKTNYzSU=
 golang.org/x/text v0.29.0 h1:1neNs90w9YzJ9BocxfsQNHKuAT4pkghyXc4nhZ6sJvk=
 golang.org/x/text v0.29.0/go.mod h1:7MhJOA9CD2qZyOKYazxdYMF85OwPdEr9jTtBpO7ydH4=
+golang.org/x/text v0.32.0 h1:ZD01bjUt1FQ9WJ0ClOL5vxgxOI/sVCNgX1YtKwcY0mU=
+golang.org/x/text v0.32.0/go.mod h1:o/rUWzghvpD5TXrTIBuJU77MTaN0ljMWE47kxGJQ7jY=
 golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
 golang.org/x/tools v0.0.0-20191119224855-298f0cb1881e/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
 golang.org/x/tools v0.1.12/go.mod h1:hNGJHUnrk76NpqgfD5Aqm5Crs+Hm0VOH/i9J2+nxYbc=

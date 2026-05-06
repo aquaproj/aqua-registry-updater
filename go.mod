@@ -4,7 +4,7 @@ go 1.26.2
 
 require (
 	github.com/aquaproj/aqua/v2 v2.58.0
-	github.com/aquaproj/registry-tool v0.3.6
+	github.com/aquaproj/registry-tool v0.5.2
 	github.com/google/go-github/v85 v85.0.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/spf13/afero v1.15.0
@@ -69,5 +69,5 @@ require (
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/term v0.37.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
 )
