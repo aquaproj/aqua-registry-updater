@@ -10,6 +10,8 @@ github.com/Masterminds/sprig/v3 v3.3.0 h1:mQh0Yrg1XPo6vjYXgtf5OtijNAKJRNcTdOOGZe
 github.com/Masterminds/sprig/v3 v3.3.0/go.mod h1:Zy1iXRYNqNLUolqCpL4uhk6SHUMAOSCzdgBfDb35Lz0=
 github.com/aquaproj/aqua/v2 v2.58.0 h1:nsDBfhH+uNNw5bScYnQq1Y6XrNW89+0soBJp1qGukFw=
 github.com/aquaproj/aqua/v2 v2.58.0/go.mod h1:tW1P9Xuu6bDX+vZGfKEc+mY4nVc/eaeE0se43YjJEy4=
+github.com/aquaproj/aqua/v2 v2.58.1 h1:BSSDNF8bJeOCji36lNZPnFgtf6xEh8OgDCerLHNRw8c=
+github.com/aquaproj/aqua/v2 v2.58.1/go.mod h1:v/IxM7qjgZ3qiwKeBXxli+6clp9hzHYZKtoNL5aVXec=
 github.com/aquaproj/registry-tool v0.5.2 h1:NtTxG+soc9xu5W9xuFqXRYwolKzeYcjAsZkFgOG4W+U=
 github.com/aquaproj/registry-tool v0.5.2/go.mod h1:ihvLtV/y1vUj9U3+zGgLDXRzZiSSKKBKYFrUfuixBXk=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
@@ -142,6 +144,8 @@ golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACk
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/crypto v0.36.0 h1:AnAEvhDddvBdpY+uR+MyHmuZzzNqXSe/GvuDeob5L34=
 golang.org/x/crypto v0.36.0/go.mod h1:Y4J0ReaxCR1IMaabaSMugxJES1EpwhBHhv2bDHklZvc=
+golang.org/x/crypto v0.45.0 h1:jMBrvKuj23MTlT0bQEOBcAE0mjg8mK9RXFhRH6nyF3Q=
+golang.org/x/crypto v0.45.0/go.mod h1:XTGrrkGJve7CYK7J8PEww4aY7gM3qMCElcJQ8n8JdX4=
 golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4/go.mod h1:jJ57K6gSWd91VN4djpZkiMVwK6gcyfeH4XE8wZrZaV4=
 golang.org/x/mod v0.8.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=
 golang.org/x/net v0.0.0-20190620200207-3b0461eec859/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
