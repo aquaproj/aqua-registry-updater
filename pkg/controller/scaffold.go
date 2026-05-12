@@ -84,7 +84,7 @@ func (c *Controller) scaffold(ctx context.Context, logger *slog.Logger, pkg *Pac
 	if err := cmd.Run(); err != nil {
 		return false, fmt.Errorf("run aqua gr %s: %w", pkg.Name, err)
 	}
-	if err := genrg.GenerateRegistry(); err != nil {
+	if err := genrg.GenerateRegistry(ctx); err != nil {
 		return false, fmt.Errorf("update registry.yaml: %w", err)
 	}
 	if err := c.createScaffoldPR(ctx, pkg.Name, pkgInfo, cfg, branch); err != nil {
