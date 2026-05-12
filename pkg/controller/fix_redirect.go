@@ -29,7 +29,7 @@ func (c *Controller) fixRedirect(ctx context.Context, logger *slog.Logger, pkg *
 	if err := mv.Move(ctx, c.fs, pkg.Name, redirect.NewPackageName); err != nil {
 		return false, fmt.Errorf("rename a package: %w", err)
 	}
-	if err := genrg.GenerateRegistry(); err != nil {
+	if err := genrg.GenerateRegistry(ctx); err != nil {
 		return false, fmt.Errorf("update registry.yaml: %w", err)
 	}
 	defer func() {
