@@ -3,7 +3,7 @@ module github.com/aquaproj/aqua-registry-updater
 go 1.26.3
 
 require (
-	github.com/aquaproj/aqua/v2 v2.58.1
+	github.com/aquaproj/aqua/v2 v2.59.0
 	github.com/aquaproj/registry-tool v0.5.4
 	github.com/google/go-github/v86 v86.0.0
 	github.com/opencontainers/image-spec v1.1.1
@@ -60,13 +60,13 @@ require (
 	github.com/suzuki-shunsuke/ghtkn-go-sdk v0.2.2 // indirect
 	github.com/suzuki-shunsuke/go-retryablehttp v0.7.8-2 // indirect
 	github.com/suzuki-shunsuke/urfave-cli-v3-util v0.2.3 // indirect
-	github.com/urfave/cli/v3 v3.8.0 // indirect
+	github.com/urfave/cli/v3 v3.9.0 // indirect
 	github.com/zalando/go-keyring v0.2.6 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	go.yaml.in/yaml/v4 v4.0.0-rc.2 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/sys v0.44.0 // indirect
 	golang.org/x/term v0.37.0 // indirect
 	golang.org/x/text v0.32.0 // indirect
 )
