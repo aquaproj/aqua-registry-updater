@@ -35,10 +35,15 @@ func core() int {
 		logger.Error("GITHUB_REPOSITORY should include /")
 		return 1
 	}
+	gh, err := controller.NewGitHub(ctx, token)
+	if err != nil {
+		slogerr.WithError(logger.Logger, err).Error("create a GitHub client")
+		return 1
+	}
 	ctrl := controller.New(afero.NewOsFs(), &controller.ParamNew{
 		RepoOwner: repoOwner,
 		RepoName:  repoName,
-	}, controller.NewGitHub(ctx, token).PullRequests)
+	}, gh.PullRequests)
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	if err := ctrl.Update(ctx, logger.Logger, &controller.Param{

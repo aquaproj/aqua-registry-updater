@@ -8,10 +8,14 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func NewGitHub(ctx context.Context, token string) *github.Client {
-	return github.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+func NewGitHub(ctx context.Context, token string) (*github.Client, error) {
+	v3, err := github.NewClient(github.WithHTTPClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
-	)))
+	))))
+	if err != nil {
+		return nil, fmt.Errorf("create a GitHub client: %w", err)
+	}
+	return v3, nil
 }
 
 type ParamCreatePR struct {
