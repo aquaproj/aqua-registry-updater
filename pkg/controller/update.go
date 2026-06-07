@@ -286,6 +286,15 @@ func compareVersion(currentVersion, newVersion string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("parse the new version: %w", err)
 	}
+	// GetVersionAndPrefix returns a nil version without an error when the tag
+	// isn't a valid version (e.g. a commit hash). Comparing such versions would
+	// cause a nil pointer dereference, so bail out instead.
+	if cv == nil {
+		return false, fmt.Errorf("the current version isn't a valid version: %s", currentVersion)
+	}
+	if nv == nil {
+		return false, fmt.Errorf("the new version isn't a valid version: %s", newVersion)
+	}
 	if cvPrefix != nvPrefix {
 		return false, nil
 	}
