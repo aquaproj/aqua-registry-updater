@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Test_compareVersion(t *testing.T) {
+func Test_compareVersion(t *testing.T) { //nolint:funlen
 	t.Parallel()
 	data := []struct {
 		name           string
