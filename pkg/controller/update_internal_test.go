@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Test_compareVersion(t *testing.T) {
+func Test_compareVersion(t *testing.T) { //nolint:funlen
 	t.Parallel()
 	data := []struct {
 		name           string
@@ -40,6 +40,18 @@ func Test_compareVersion(t *testing.T) {
 			currentVersion: "cli-v2.1.0",
 			newVersion:     "cli-v2.0.0",
 			f:              false,
+		},
+		{
+			name:           "current version is a commit hash",
+			currentVersion: "cd684900348e6c23335064bf74c8368e3abcec5e",
+			newVersion:     "v0.1.3",
+			isErr:          true,
+		},
+		{
+			name:           "new version is a commit hash",
+			currentVersion: "v0.1.3",
+			newVersion:     "cd684900348e6c23335064bf74c8368e3abcec5e",
+			isErr:          true,
 		},
 	}
 	for _, d := range data {
