@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	github.com/aquaproj/aqua/v2 v2.60.0
-	github.com/aquaproj/registry-tool v0.5.4
+	github.com/aquaproj/registry-tool v0.5.5
 	github.com/google/go-github/v88 v88.0.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/spf13/afero v1.15.0
@@ -57,7 +57,7 @@ require (
 	github.com/suzuki-shunsuke/ghtkn-go-sdk v0.3.0 // indirect
 	github.com/suzuki-shunsuke/go-retryablehttp v0.7.8-2 // indirect
 	github.com/suzuki-shunsuke/urfave-cli-v3-util v0.2.3 // indirect
-	github.com/urfave/cli/v3 v3.9.0 // indirect
+	github.com/urfave/cli/v3 v3.9.1 // indirect
 	github.com/zalando/go-keyring v0.2.8 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	go.yaml.in/yaml/v4 v4.0.0-rc.2 // indirect
