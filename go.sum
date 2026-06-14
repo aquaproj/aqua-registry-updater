@@ -10,6 +10,8 @@ github.com/aquaproj/aqua/v2 v2.60.0 h1:FRP4ZAcUAw9bMu6EHbxC05PiPIg52NuKRUF/jdthu
 github.com/aquaproj/aqua/v2 v2.60.0/go.mod h1:HOuuqLXkSwmk8OGeUxhfeWIGxzSkbpz9bdr+6rmsdGY=
 github.com/aquaproj/registry-tool v0.5.4 h1:eQEfyyAhNh8/jctgTY43IkFkcBpwNqXc6YZ9MEEE40U=
 github.com/aquaproj/registry-tool v0.5.4/go.mod h1:TZVklv2aJy/qDkAIom/Lpo6X+nCBcGl8I+TVpUX65FA=
+github.com/aquaproj/registry-tool v0.5.5 h1:JZ1K8xHJA41/M2B8vbMBLsTpuzSmsOE+FvSGBDEiaAk=
+github.com/aquaproj/registry-tool v0.5.5/go.mod h1:CCTD7dnC6LAvVNBXWK/0w88aXZU0p64Jj3I4KwBRtWQ=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
 github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/buger/jsonparser v1.1.2 h1:frqHqw7otoVbk5M8LlE/L7HTnIq2v9RX6EJ48i9AxJk=
@@ -123,6 +125,8 @@ github.com/suzuki-shunsuke/urfave-cli-v3-util v0.2.3 h1:28ZzFUyh118PFMBeHuKYPkIw
 github.com/suzuki-shunsuke/urfave-cli-v3-util v0.2.3/go.mod h1:pfMAEENW39YADk1hW/bfHfO4rMu8GKgO4Psh6YY9nyM=
 github.com/urfave/cli/v3 v3.9.0 h1:AV9lIiPv3ukYnxunaCUsHnEozptYmDN2F0+yWqLMn/c=
 github.com/urfave/cli/v3 v3.9.0/go.mod h1:ysVLtOEmg2tOy6PknnYVhDoouyC/6N42TMeoMzskhso=
+github.com/urfave/cli/v3 v3.9.1 h1:OLU13atWZ0M+a4xmyBuBNOLZsSRYXyPeMeNjOvgYP54=
+github.com/urfave/cli/v3 v3.9.1/go.mod h1:ysVLtOEmg2tOy6PknnYVhDoouyC/6N42TMeoMzskhso=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zalando/go-keyring v0.2.8 h1:6sD/Ucpl7jNq10rM2pgqTs0sZ9V3qMrqfIIy5YPccHs=
 github.com/zalando/go-keyring v0.2.8/go.mod h1:tsMo+VpRq5NGyKfxoBVjCuMrG47yj8cmakZDO5QGii0=
