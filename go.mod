@@ -5,7 +5,7 @@ go 1.26.4
 require (
 	github.com/aquaproj/aqua/v2 v2.60.2
 	github.com/aquaproj/registry-tool v0.5.5
-	github.com/google/go-github/v88 v88.0.0
+	github.com/google/go-github/v89 v89.0.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/spf13/afero v1.15.0
 	github.com/suzuki-shunsuke/go-exec v0.0.1
@@ -30,6 +30,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.9.0 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/godbus/dbus/v5 v5.2.2 // indirect
+	github.com/google/go-github/v88 v88.0.0 // indirect
 	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
