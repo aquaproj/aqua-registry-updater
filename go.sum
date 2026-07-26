@@ -10,6 +10,8 @@ github.com/aquaproj/aqua/v2 v2.62.1 h1:rwUYSp25y8N7z5sKj+k5tQGPkCCCV0cG5V6WzTDfc
 github.com/aquaproj/aqua/v2 v2.62.1/go.mod h1:bQJT5CDyOZmzoBJVdDxwZNcPWGXAaIs/kjwfVy4SPj4=
 github.com/aquaproj/registry-tool v0.5.5 h1:JZ1K8xHJA41/M2B8vbMBLsTpuzSmsOE+FvSGBDEiaAk=
 github.com/aquaproj/registry-tool v0.5.5/go.mod h1:CCTD7dnC6LAvVNBXWK/0w88aXZU0p64Jj3I4KwBRtWQ=
+github.com/aquaproj/registry-tool v0.5.6 h1:kFks+gLISwZiBe8wmZLB9zbsEhbMmk2zidk32xAmNfw=
+github.com/aquaproj/registry-tool v0.5.6/go.mod h1:cJKUGH8zDeY4ytIhY5h5ewb5dRubbE5t0QcA0nt6AGE=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
 github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/buger/jsonparser v1.1.2 h1:frqHqw7otoVbk5M8LlE/L7HTnIq2v9RX6EJ48i9AxJk=
