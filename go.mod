@@ -3,7 +3,7 @@ module github.com/aquaproj/aqua-registry-updater
 go 1.26.5
 
 require (
-	github.com/aquaproj/aqua/v2 v2.62.2
+	github.com/aquaproj/aqua/v2 v2.62.3
 	github.com/aquaproj/registry-tool v0.5.6
 	github.com/google/go-github/v89 v89.0.0
 	github.com/opencontainers/image-spec v1.1.1
@@ -52,7 +52,7 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
-	github.com/suzuki-shunsuke/ghtkn-go-sdk v0.5.0 // indirect
+	github.com/suzuki-shunsuke/ghtkn-go-sdk v0.5.1 // indirect
 	github.com/suzuki-shunsuke/go-github-device-flow v0.0.2 // indirect
 	github.com/suzuki-shunsuke/go-retryablehttp v0.7.8-2 // indirect
 	github.com/suzuki-shunsuke/go-revoke-github-access-token v0.0.2 // indirect
