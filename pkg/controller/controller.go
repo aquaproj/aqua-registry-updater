@@ -24,7 +24,7 @@ type Controller struct {
 }
 
 type PullRequestsService interface {
-	Create(ctx context.Context, owner, repo string, pull *github.NewPullRequest) (*github.PullRequest, *github.Response, error)
+	Create(ctx context.Context, owner, repo string, pull github.CreatePullRequest) (*github.PullRequest, *github.Response, error)
 }
 
 func New(fs afero.Fs, param *ParamNew, pull PullRequestsService) *Controller {
