@@ -8,8 +8,8 @@ github.com/Masterminds/sprig/v3 v3.3.0 h1:mQh0Yrg1XPo6vjYXgtf5OtijNAKJRNcTdOOGZe
 github.com/Masterminds/sprig/v3 v3.3.0/go.mod h1:Zy1iXRYNqNLUolqCpL4uhk6SHUMAOSCzdgBfDb35Lz0=
 github.com/aquaproj/aqua/v2 v2.62.3 h1:mAaFcdpYy5+90VPcq8x6dEX2KON8njNDKYoaWiz+neY=
 github.com/aquaproj/aqua/v2 v2.62.3/go.mod h1:3PxduulVQGipZcZRzlXRAdrVdej2KIMc2yEhHycctqs=
-github.com/aquaproj/registry-tool v0.5.6 h1:kFks+gLISwZiBe8wmZLB9zbsEhbMmk2zidk32xAmNfw=
-github.com/aquaproj/registry-tool v0.5.6/go.mod h1:cJKUGH8zDeY4ytIhY5h5ewb5dRubbE5t0QcA0nt6AGE=
+github.com/aquaproj/registry-tool v0.5.7 h1:yqqRXybnpegJmKbTHzm89JpZC/rPr3+CffWf8vDz59c=
+github.com/aquaproj/registry-tool v0.5.7/go.mod h1:2ziosklJQmCJtbmTMDTlL0lzr8aDWkfsxjmmkgvjczE=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
 github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/buger/jsonparser v1.1.2 h1:frqHqw7otoVbk5M8LlE/L7HTnIq2v9RX6EJ48i9AxJk=
