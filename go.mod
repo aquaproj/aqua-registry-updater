@@ -4,7 +4,7 @@ go 1.27.0
 
 require (
 	github.com/aquaproj/aqua/v2 v2.62.3
-	github.com/aquaproj/registry-tool v0.5.7
+	github.com/aquaproj/registry-tool v0.5.8
 	github.com/google/go-github/v90 v90.0.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/spf13/afero v1.15.0
@@ -53,12 +53,12 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
-	github.com/suzuki-shunsuke/ghtkn-go-sdk v0.5.1 // indirect
+	github.com/suzuki-shunsuke/ghtkn-go-sdk v0.6.1 // indirect
 	github.com/suzuki-shunsuke/go-github-device-flow v0.0.2 // indirect
 	github.com/suzuki-shunsuke/go-retryablehttp v0.7.8-2 // indirect
 	github.com/suzuki-shunsuke/go-revoke-github-access-token v0.0.2 // indirect
 	github.com/suzuki-shunsuke/urfave-cli-v3-util v0.2.3 // indirect
-	github.com/urfave/cli/v3 v3.10.1 // indirect
+	github.com/urfave/cli/v3 v3.11.0 // indirect
 	github.com/zalando/go-keyring v0.2.8 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	go.yaml.in/yaml/v4 v4.0.0-rc.2 // indirect
