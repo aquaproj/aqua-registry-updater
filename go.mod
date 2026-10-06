@@ -3,7 +3,7 @@ module github.com/aquaproj/aqua-registry-updater
 go 1.27.1
 
 require (
-	github.com/aquaproj/aqua/v2 v2.63.0
+	github.com/aquaproj/aqua/v2 v2.64.0
 	github.com/aquaproj/registry-tool v0.5.9
 	github.com/google/go-github/v92 v92.0.0
 	github.com/opencontainers/image-spec v1.1.1
@@ -48,7 +48,8 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/nsf/termbox-go v1.1.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/pb33f/ordered-map/v2 v2.3.1 // indirect
+	github.com/pb33f/go-yaml v0.1.0 // indirect
+	github.com/pb33f/ordered-map/v2 v2.3.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
@@ -57,8 +58,8 @@ require (
 	github.com/suzuki-shunsuke/go-github-device-flow v0.0.2 // indirect
 	github.com/suzuki-shunsuke/go-retryablehttp v0.7.8-2 // indirect
 	github.com/suzuki-shunsuke/go-revoke-github-access-token v0.0.2 // indirect
-	github.com/suzuki-shunsuke/urfave-cli-v3-util v0.2.3 // indirect
-	github.com/urfave/cli/v3 v3.11.0 // indirect
+	github.com/suzuki-shunsuke/urfave-cli-v3-util v0.2.4 // indirect
+	github.com/urfave/cli/v3 v3.14.0 // indirect
 	github.com/zalando/go-keyring v0.2.8 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	go.yaml.in/yaml/v4 v4.0.0-rc.2 // indirect
