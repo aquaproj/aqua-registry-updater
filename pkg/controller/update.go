@@ -57,6 +57,9 @@ func (c *Controller) Update(ctx context.Context, logger *slog.Logger, param *Par
 	if err != nil {
 		return fmt.Errorf("search pkg.yaml: %w", err)
 	}
+	if err := c.closeSupersededUpdatePRs(ctx, logger, pkgPaths, param.Args); err != nil {
+		return fmt.Errorf("close superseded update pull requests: %w", err)
+	}
 
 	ignorePkgsM := make(map[string]struct{}, len(cfg.IgnorePackages))
 	for _, pkg := range cfg.IgnorePackages {
