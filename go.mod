@@ -4,7 +4,7 @@ go 1.27.3
 
 require (
 	github.com/aquaproj/aqua/v2 v2.65.2
-	github.com/aquaproj/registry-tool v0.5.9
+	github.com/aquaproj/registry-tool v0.5.10
 	github.com/google/go-github/v93 v93.0.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/spf13/afero v1.15.0
